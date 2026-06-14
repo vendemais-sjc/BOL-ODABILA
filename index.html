@@ -11,10 +11,12 @@
         .card { background: rgba(0,0,0,0.65); backdrop-filter: blur(12px); border-radius: 2rem; border: 1px solid #f5b04280; }
         .btn-wa { background: #25D366; transition: 0.2s; }
         .btn-wa:hover { filter: brightness(1.05); transform: scale(1.01); }
+        .admin-panel { background: #0a1412e6; border: 1px solid #e07c1f; }
     </style>
 </head>
 <body class="text-white p-4">
 <div class="max-w-4xl mx-auto">
+    <!-- CABEÇALHO -->
     <div class="text-center mb-6">
         <h1 class="text-5xl font-bold text-yellow-400">BOLÃO DA BILA</h1>
         <h2 class="text-2xl">🇧🇷 BRASIL x HAITI 🇭🇹</h2>
@@ -26,14 +28,14 @@
     </div>
 
     <div class="grid md:grid-cols-2 gap-6">
-        <!-- COLUDA ESQUERDA -->
+        <!-- COLUNA PÚBLICA -->
         <div class="card p-6">
             <h2 class="text-2xl font-bold mb-4"><i class="fab fa-whatsapp text-green-500"></i> Como apostar</h2>
             <ol class="list-decimal list-inside space-y-2 text-gray-200 mb-6">
                 <li>Escolha um placar para Brasil x Haiti.</li>
                 <li>Pague <strong class="text-yellow-300">R$ 25,00 por aposta</strong> via PIX para a chave abaixo.</li>
                 <li>Clique no botão verde e envie uma mensagem com <strong>seu nome + o placar</strong>.</li>
-                <li>O administrador adicionará sua aposta no arquivo `dados.json` do GitHub.</li>
+                <li>O administrador adicionará sua aposta no sistema.</li>
             </ol>
             <div class="bg-black/40 rounded-2xl p-4 text-center mb-5">
                 <p class="text-sm text-gray-300">Chave PIX (copiar):</p>
@@ -45,49 +47,131 @@
             </button>
         </div>
 
-        <!-- COLUNA DIREITA: RANKING -->
+        <!-- RANKING -->
         <div class="card p-6">
-            <h2 class="text-2xl font-bold mb-4"><i class="fas fa-trophy text-yellow-400"></i> Classificação</h2>
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-2xl font-bold"><i class="fas fa-trophy text-yellow-400"></i> Classificação</h2>
+                <button id="openAdminBtn" class="bg-yellow-700/70 hover:bg-yellow-600 px-3 py-1 rounded-full text-xs">🔐 Admin</button>
+            </div>
             <div id="ranking" class="overflow-x-auto">
                 <div class="text-gray-400 text-center py-8">Carregando ranking...</div>
             </div>
-            <p class="text-xs text-gray-400 text-center mt-4">✅ Atualiza automaticamente. Recarregue a página para ver as últimas apostas.</p>
+            <p class="text-xs text-gray-400 text-center mt-4">✅ Atualiza automaticamente. Alterações feitas pelo admin aparecem para todos.</p>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DO ADMIN (oculto inicialmente) -->
+<div id="adminModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; align-items:center; justify-content:center;">
+    <div class="bg-black p-5 rounded-2xl max-w-md w-full border-2 border-yellow-500">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="text-xl font-bold text-yellow-400"><i class="fas fa-user-shield"></i> Painel Admin</h3>
+            <button id="closeAdminBtn" class="text-white text-xl">&times;</button>
+        </div>
+        <div id="adminLoginArea">
+            <input type="password" id="adminSenha" placeholder="Digite a senha" class="w-full bg-gray-800 rounded p-2 mb-2">
+            <button id="loginAdminBtn" class="bg-yellow-600 w-full py-1 rounded">Entrar</button>
+        </div>
+        <div id="adminContent" style="display:none;">
+            <p class="text-green-400 text-sm mb-2">✅ Conectado. Gerencie as apostas abaixo:</p>
+            <div class="bg-black/40 p-2 rounded mb-2">
+                <p class="text-yellow-300 font-bold text-sm">➕ Nova aposta</p>
+                <div class="flex gap-2 flex-wrap">
+                    <input type="text" id="novaNome" placeholder="Nome" class="bg-gray-800 rounded p-1 text-sm flex-1">
+                    <input type="number" id="novaHome" placeholder="Brasil" class="w-16 bg-gray-800 rounded text-center">
+                    <span class="text-yellow-400">x</span>
+                    <input type="number" id="novaAway" placeholder="Haiti" class="w-16 bg-gray-800 rounded text-center">
+                    <button id="btnAddAposta" class="bg-green-700 px-2 rounded text-sm">Adicionar</button>
+                </div>
+            </div>
+            <div id="listaApostasAdmin" class="max-h-60 overflow-auto text-sm mb-2"></div>
+            <hr class="border-white/20 my-2">
+            <div class="flex gap-2 flex-wrap">
+                <input type="number" id="resHome" placeholder="Resultado BR" class="bg-gray-800 w-16 rounded text-center">
+                <span class="text-yellow-400">x</span>
+                <input type="number" id="resAway" placeholder="Resultado HT" class="bg-gray-800 w-16 rounded text-center">
+                <button id="btnDefinirResultado" class="bg-orange-600 px-2 rounded text-sm">Definir resultado</button>
+                <button id="btnResetTudo" class="bg-red-700 px-2 rounded text-sm">Resetar todas</button>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">✔ Clique em "Confirmar" ao lado da aposta para validar.</p>
         </div>
     </div>
 </div>
 
 <script>
-    // URL do arquivo JSON no GitHub Pages (substitua pelo seu usuário/repositório)
-    const URL_JSON = "dados.json";  // mesmo diretório, ou caminho completo como "https://SEU_USUARIO.github.io/SEU_REPO/dados.json"
+    // ============================================
+    // CONFIGURAÇÕES DO GITHUB (substitua pelos seus dados)
+    // ============================================
+    const REPO_OWNER = "SEU_USUARIO_GITHUB";       // exemplo: "joaosilva"
+    const REPO_NAME = "SEU_REPOSITORIO";           // exemplo: "meu-site"
+    const GITHUB_TOKEN = "SEU_TOKEN_COPIADO";      // token gerado no GitHub
+    const JSON_PATH = "dados.json";                // caminho do arquivo no repositório
+    // ============================================
 
-    let apostas = [];
-    let resultado = { home: null, away: null };
+    const API_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${JSON_PATH}`;
+    let dadosCache = { apostas: [], resultado: { home: null, away: null } };
+    let adminAutenticado = false;
+    const SENHA_ADMIN = "bila2026";
 
-    async function carregarRanking() {
+    // ========== FUNÇÕES DE LEITURA/ESCRITA NO GITHUB ==========
+    async function lerDadosGitHub() {
         try {
-            const resposta = await fetch(URL_JSON + "?t=" + new Date().getTime()); // evitar cache
-            const dados = await resposta.json();
-            apostas = dados.apostas || [];
-            resultado = dados.resultado || { home: null, away: null };
-            renderizar();
+            const resposta = await fetch(API_URL, {
+                headers: { "Authorization": `token ${GITHUB_TOKEN}` }
+            });
+            if (!resposta.ok) throw new Error("Erro ao ler");
+            const arquivo = await resposta.json();
+            const conteudo = atob(arquivo.content);
+            dadosCache = JSON.parse(conteudo);
+            if (!dadosCache.apostas) dadosCache.apostas = [];
+            if (!dadosCache.resultado) dadosCache.resultado = { home: null, away: null };
+            renderizarRanking();
+            if (adminAutenticado) renderizarAdminLista();
         } catch (erro) {
-            document.getElementById("ranking").innerHTML = "<div class='text-red-400'>Erro ao carregar dados. Verifique se o arquivo dados.json existe e está acessível.</div>";
+            console.error(erro);
+            document.getElementById("ranking").innerHTML = "<div class='text-red-400'>Erro ao carregar dados. Verifique token e repositório.</div>";
         }
     }
 
+    async function escreverDadosGitHub() {
+        const novoConteudo = btoa(JSON.stringify(dadosCache, null, 2));
+        // Primeiro, obter o SHA do arquivo atual
+        const respostaGet = await fetch(API_URL, {
+            headers: { "Authorization": `token ${GITHUB_TOKEN}` }
+        });
+        const arquivo = await respostaGet.json();
+        const sha = arquivo.sha;
+        
+        const respostaPut = await fetch(API_URL, {
+            method: "PUT",
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: "Atualização do bolão",
+                content: novoConteudo,
+                sha: sha
+            })
+        });
+        if (!respostaPut.ok) throw new Error("Erro ao salvar");
+        await lerDadosGitHub(); // recarrega
+    }
+
+    // ========== LÓGICA DO RANKING ==========
     function calcularPontos(aposta) {
-        if (resultado.home === null || resultado.away === null) return 0;
-        if (aposta.confirmed && aposta.home === resultado.home && aposta.away === resultado.away) return 5;
+        if (dadosCache.resultado.home === null || dadosCache.resultado.away === null) return 0;
+        if (aposta.confirmed && aposta.home === dadosCache.resultado.home && aposta.away === dadosCache.resultado.away) return 5;
         return 0;
     }
 
-    function renderizar() {
+    function renderizarRanking() {
         const container = document.getElementById("ranking");
-        if (apostas.length === 0) {
+        if (!dadosCache.apostas.length) {
             container.innerHTML = "<div class='text-center text-gray-400'>Nenhuma aposta ainda.</div>";
             return;
         }
-        const ranking = [...apostas].map(a => ({
+        const ranking = [...dadosCache.apostas].map(a => ({
             ...a,
             pontos: calcularPontos(a)
         })).sort((a,b) => b.pontos - a.pontos);
@@ -101,13 +185,111 @@
                         <td class="font-bold text-yellow-300">${r.pontos}</td>
                       </tr>`;
         });
-        html += `</tbody>}|`;
-        if (resultado.home !== null && resultado.away !== null) {
-            html += `<div class="mt-2 text-xs text-green-300 bg-black/30 p-1 rounded">Resultado oficial: Brasil ${resultado.home} x ${resultado.away} Haiti</div>`;
+        html += `</tbody>}</table>`;
+        if (dadosCache.resultado.home !== null && dadosCache.resultado.away !== null) {
+            html += `<div class="mt-2 text-xs text-green-300 bg-black/30 p-1 rounded">Resultado oficial: Brasil ${dadosCache.resultado.home} x ${dadosCache.resultado.away} Haiti</div>`;
         }
         container.innerHTML = html;
     }
 
+    // ========== ADMIN: LISTA DE APOSTAS ==========
+    function renderizarAdminLista() {
+        const container = document.getElementById("listaApostasAdmin");
+        if (!container) return;
+        if (dadosCache.apostas.length === 0) {
+            container.innerHTML = "<div class='text-gray-400'>Nenhuma aposta.</div>";
+            return;
+        }
+        let html = "";
+        dadosCache.apostas.forEach((a, idx) => {
+            html += `<div class="flex justify-between items-center border-b border-gray-600 py-1">
+                        <span><strong>${a.nome}</strong> ${a.home}x${a.away} <span class="text-xs ${a.confirmed ? 'text-green-400' : 'text-yellow-400'}">${a.confirmed ? 'Conf' : 'Pend'}</span></span>
+                        <div>
+                            <button data-idx="${idx}" class="btnConfirmarAdmin text-xs px-1 rounded ${a.confirmed ? 'bg-yellow-700' : 'bg-green-700'}">${a.confirmed ? 'Revogar' : 'Confirmar'}</button>
+                            <button data-idx="${idx}" class="btnExcluirAdmin text-xs bg-red-700 px-1 rounded ml-1">Excluir</button>
+                        </div>
+                     </div>`;
+        });
+        container.innerHTML = html;
+        
+        document.querySelectorAll(".btnConfirmarAdmin").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                const idx = parseInt(btn.getAttribute("data-idx"));
+                dadosCache.apostas[idx].confirmed = !dadosCache.apostas[idx].confirmed;
+                await escreverDadosGitHub();
+                renderizarAdminLista();
+            });
+        });
+        document.querySelectorAll(".btnExcluirAdmin").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                const idx = parseInt(btn.getAttribute("data-idx"));
+                if (confirm("Excluir esta aposta?")) {
+                    dadosCache.apostas.splice(idx, 1);
+                    await escreverDadosGitHub();
+                    renderizarAdminLista();
+                }
+            });
+        });
+    }
+
+    // ========== AÇÕES DO ADMIN ==========
+    async function adicionarAposta() {
+        const nome = document.getElementById("novaNome").value.trim();
+        const home = parseInt(document.getElementById("novaHome").value);
+        const away = parseInt(document.getElementById("novaAway").value);
+        if (!nome || isNaN(home) || isNaN(away)) { alert("Preencha nome e placar"); return; }
+        dadosCache.apostas.push({
+            nome: nome,
+            home: home,
+            away: away,
+            confirmed: false
+        });
+        await escreverDadosGitHub();
+        document.getElementById("novaNome").value = "";
+        document.getElementById("novaHome").value = "";
+        document.getElementById("novaAway").value = "";
+        renderizarAdminLista();
+    }
+
+    async function definirResultado() {
+        const home = parseInt(document.getElementById("resHome").value);
+        const away = parseInt(document.getElementById("resAway").value);
+        if (isNaN(home) || isNaN(away)) { alert("Digite o placar real"); return; }
+        dadosCache.resultado = { home, away };
+        await escreverDadosGitHub();
+        alert(`Resultado definido: Brasil ${home} x ${away} Haiti`);
+        renderizarAdminLista();
+    }
+
+    async function resetarTudo() {
+        if (confirm("Apagar TODAS as apostas e resultado?")) {
+            dadosCache.apostas = [];
+            dadosCache.resultado = { home: null, away: null };
+            await escreverDadosGitHub();
+            renderizarAdminLista();
+        }
+    }
+
+    // ========== CONTROLE DO MODAL E LOGIN ==========
+    const modal = document.getElementById("adminModal");
+    document.getElementById("openAdminBtn").onclick = () => modal.style.display = "flex";
+    document.getElementById("closeAdminBtn").onclick = () => modal.style.display = "none";
+    document.getElementById("loginAdminBtn").onclick = () => {
+        const senha = document.getElementById("adminSenha").value;
+        if (senha === SENHA_ADMIN) {
+            adminAutenticado = true;
+            document.getElementById("adminLoginArea").style.display = "none";
+            document.getElementById("adminContent").style.display = "block";
+            renderizarAdminLista();
+        } else {
+            alert("Senha incorreta!");
+        }
+    };
+    document.getElementById("btnAddAposta").onclick = adicionarAposta;
+    document.getElementById("btnDefinirResultado").onclick = definirResultado;
+    document.getElementById("btnResetTudo").onclick = resetarTudo;
+
+    // ========== BOTÕES PÚBLICOS ==========
     document.getElementById("copyPixBtn").onclick = () => {
         navigator.clipboard.writeText("12988461978");
         alert("Chave PIX copiada!");
@@ -116,8 +298,9 @@
         window.open("https://wa.me/5512988461978?text=Olá%20administrador!%0AMeu%20nome:%20%0AMinha%20aposta:%20Brasil%20_%20x%20_%20Haiti%0AComprovante%20PIX%20anexado", "_blank");
     };
 
-    carregarRanking();
-    setInterval(carregarRanking, 10000); // atualiza a cada 10 segundos
+    // ========== INICIALIZAÇÃO ==========
+    lerDadosGitHub();
+    setInterval(lerDadosGitHub, 15000); // atualiza a cada 15s
 </script>
 </body>
 </html>
