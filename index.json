@@ -1,7 +1,7 @@
 {
   "apostas": [
-    { "nome": "Carlão do PIX", "home": 2, "away": 0, "confirmed": true },
-    { "nome": "Marta Boleira", "home": 1, "away": 0, "confirmed": false }
+    { "nome": "João", "home": 2, "away": 0, "confirmed": true },
+    { "nome": "Maria", "home": 1, "away": 0, "confirmed": false }
   ],
   "resultado": { "home": null, "away": null }
 }
