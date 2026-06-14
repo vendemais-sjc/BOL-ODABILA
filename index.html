@@ -1,48 +1,41 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bolão da Bila</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #0a2f2a; color: white; font-family: sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #555; }
+        .info { background: #000000aa; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-green-900 to-black text-white p-4">
-<div class="max-w-4xl mx-auto">
-    <div class="text-center mb-6">
-        <h1 class="text-5xl font-bold text-yellow-400">BOLÃO DA BILA</h1>
-        <p class="text-2xl">🇧🇷 BRASIL x HAITI 🇭🇹</p>
-        <p class="mt-2">💰 R$25,00 por aposta | 🎯 Placar exato = 5 pontos</p>
+<body>
+    <h1>🇧🇷 BOLÃO DA BILA - BRASIL x HAITI 🇭🇹</h1>
+    <div class="info">
+        <p>💰 Aposta: R$ 25,00 | 🎯 Placar exato = 5 pontos</p>
+        <p>📲 Envie seu nome e placar para <strong>(12) 98846-1978</strong> (WhatsApp) e pague o PIX <strong>12988461978</strong>. O administrador adiciona no sistema.</p>
     </div>
-    <div class="bg-black/40 p-6 rounded-2xl">
-        <h2 class="text-2xl font-bold mb-4">🏆 Classificação</h2>
-        <div id="ranking">Carregando...</div>
-        <p class="text-xs text-center mt-4">📲 Para apostar, envie seu nome + placar para <strong class="text-yellow-300">(12) 98846-1978</strong> (WhatsApp) e pague o PIX <strong>12988461978</strong>. O administrador atualiza o JSON.</p>
-    </div>
-</div>
-<script>
-    async function carregarRanking() {
-        try {
-            const resposta = await fetch('dados.json?v=' + Date.now());
-            const dados = await resposta.json();
+    <div id="ranking">Carregando...</div>
+
+    <script>
+        async function carregar() {
+            const r = await fetch('dados.json?t=' + Date.now());
+            const dados = await r.json();
             const apostas = dados.apostas || [];
-            const resultado = dados.resultado || { home: null, away: null };
-            function pontos(a) {
-                if (resultado.home === null) return 0;
-                if (a.confirmed && a.home === resultado.home && a.away === resultado.away) return 5;
-                return 0;
-            }
-            const ordenado = [...apostas].sort((a,b) => pontos(b) - pontos(a));
-            let html = `<table class="w-full text-sm"><thead><tr class="border-b"><th>#</th><th>Nome</th><th>Placar</th><th>Pts</th></tr></thead><tbody>`;
+            const resultado = dados.resultado || {};
+            const ordenado = apostas.sort((a,b) => (b.confirmed && b.home===resultado.home && b.away===resultado.away ? 5 : 0) - (a.confirmed && a.home===resultado.home && a.away===resultado.away ? 5 : 0));
+            let html = '<table><tr><th>#</th><th>Nome</th><th>Placar</th><th>Pontos</th></tr>';
             ordenado.forEach((a, i) => {
-                html += `<tr><td>${i+1}</td><td>${a.nome} ${a.confirmed ? '✅' : '⏳'}</td><td>${a.home}x${a.away}</td><td class="text-yellow-300">${pontos(a)}</td></tr>`;
+                let pts = 0;
+                if (resultado.home !== undefined && a.confirmed && a.home == resultado.home && a.away == resultado.away) pts = 5;
+                html += `<tr><td>${i+1}</td><td>${a.nome} ${a.confirmed ? '✅' : '⏳'}</td><td>${a.home} x ${a.away}</td><td>${pts}</td></tr>`;
             });
-            html += `</tbody>} `;
-            if (resultado.home !== null) html += `<div class="mt-2 text-center text-green-300">Resultado oficial: ${resultado.home}x${resultado.away}</div>`;
+            html += `点able`;
+            if (resultado.home !== undefined) html += `<p>Resultado oficial: ${resultado.home} x ${resultado.away}</p>`;
             document.getElementById('ranking').innerHTML = html;
-        } catch(e) { document.getElementById('ranking').innerHTML = '<div class="text-red-400">Erro ao carregar dados.json</div>'; }
-    }
-    carregarRanking();
-    setInterval(carregarRanking, 10000);
-</script>
+        }
+        carregar();
+        setInterval(carregar, 15000);
+    </script>
 </body>
 </html>
