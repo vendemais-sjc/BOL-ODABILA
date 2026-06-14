@@ -3,489 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Bolão da Bila | Admin + Confirmação de Apostas</title>
+    <title>Bolão da Bila | Brasil x Haiti</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: radial-gradient(circle at 20% 30%, #0a1f1e, #021010); min-height: 100vh; }
-        .glass-card {
-            background: rgba(0, 20, 18, 0.7);
-            backdrop-filter: blur(12px);
-            border-radius: 2rem;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            box-shadow: 0 20px 30px -12px black;
-        }
-        .btn-gold {
-            background: linear-gradient(105deg, #f5b042, #e07c1f);
-            transition: 0.2s;
-        }
-        .btn-gold:hover { transform: translateY(-2px); filter: brightness(1.05); }
-        .pending-badge { background: #e07c1f20; border-left: 3px solid #f5b042; }
-        .confirmed-badge { background: #16a34a20; border-left: 3px solid #22c55e; }
-        .admin-panel {
-            background: #0a1412e6;
-            border: 1px solid #e07c1f;
-        }
-        input.number-input { -moz-appearance: textfield; }
-        input.number-input::-webkit-inner-spin-button, 
-        input.number-input::-webkit-outer-spin-button { opacity: 0.5; }
+        body { background: linear-gradient(145deg, #0a2f2a, #031010); min-height: 100vh; font-family: 'Segoe UI', system-ui; }
+        .card { background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); border-radius: 2rem; border: 1px solid rgba(255,215,0,0.3); }
+        .btn-wa { background: #25D366; transition: 0.2s; }
+        .btn-wa:hover { filter: brightness(1.05); transform: scale(1.02); }
+        .admin-area { border-left: 4px solid #f5b042; }
     </style>
 </head>
 <body class="text-white p-4 md:p-6">
 
-<div class="max-w-7xl mx-auto">
-    <!-- CABEÇALHO -->
+<div class="max-w-5xl mx-auto">
+    <!-- TÍTULO -->
     <div class="text-center mb-8">
-        <div class="inline-flex items-center gap-3 bg-black/40 backdrop-blur rounded-full px-6 py-2 mb-4 border border-yellow-600/40">
-            <i class="fas fa-futbol text-yellow-500 text-xl animate-pulse"></i>
-            <span class="text-sm font-bold tracking-widest text-yellow-300">BOLÃO DA BILA</span>
-            <i class="fas fa-crown text-yellow-500 text-xl"></i>
+        <div class="inline-flex items-center gap-2 bg-black/40 rounded-full px-5 py-1 mb-3">
+            <i class="fas fa-futbol text-yellow-400"></i>
+            <span class="text-yellow-300 font-bold">BOLÃO DA BILA</span>
         </div>
-        <h1 class="text-5xl md:text-6xl font-black bg-gradient-to-r from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent">BRASIL x HAITI</h1>
-        <p class="text-gray-200 text-lg mt-2 font-medium">⚽ PLACAR EXATO · MÁXIMO 2 APOSTAS POR PARTICIPANTE ⚽</p>
-        <div class="mt-3 flex justify-center gap-3 flex-wrap">
-            <span class="bg-black/50 text-amber-300 text-sm px-4 py-1.5 rounded-full"><i class="fas fa-tag"></i> R$ 25,00 / aposta</span>
-            <span class="bg-black/50 text-amber-300 text-sm px-4 py-1.5 rounded-full"><i class="fas fa-chart-line"></i> Pontuação: 5 pontos por aposta confirmada + placar exato</span>
+        <h1 class="text-5xl md:text-6xl font-black bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">BRASIL x HAITI</h1>
+        <p class="text-gray-300 mt-2">Faça sua aposta pelo WhatsApp. O administrador confirma manualmente.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+        <!-- COLUDA PÚBLICA - JOGADOR FAZ APOSTA -->
+        <div class="card p-6">
+            <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fas fa-pen-alt text-yellow-400"></i> Fazer aposta</h2>
+            <div class="mt-4 space-y-4">
+                <input type="text" id="jogadorNome" placeholder="Seu nome completo" class="w-full bg-gray-800/80 border border-gray-600 rounded-xl px-4 py-3 text-white">
+                <div class="flex gap-3 items-center justify-center">
+                    <div class="text-center">
+                        <span class="block text-sm">🇧🇷 BRASIL</span>
+                        <input type="number" id="golsBrasil" value="2" class="w-24 text-center bg-gray-800 border border-gray-600 rounded-xl py-2 text-2xl font-bold">
+                    </div>
+                    <span class="text-3xl font-black text-yellow-500">x</span>
+                    <div class="text-center">
+                        <span class="block text-sm">🇭🇹 HAITI</span>
+                        <input type="number" id="golsHaiti" value="0" class="w-24 text-center bg-gray-800 border border-gray-600 rounded-xl py-2 text-2xl font-bold">
+                    </div>
+                </div>
+                <button id="btnWhatsApp" class="btn-wa w-full py-4 rounded-xl text-black font-bold text-lg flex items-center justify-center gap-3"><i class="fab fa-whatsapp text-2xl"></i> Enviar aposta via WhatsApp</button>
+                <p class="text-xs text-center text-gray-400">📲 O administrador receberá sua aposta e adicionará manualmente. Após o pagamento do PIX (R$25,00 por aposta) para <strong class="text-yellow-300">12988461978</strong>, sua aposta será confirmada.</p>
+            </div>
+        </div>
+
+        <!-- RANKING PÚBLICO -->
+        <div class="card p-6">
+            <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fas fa-trophy text-yellow-400"></i> Classificação</h2>
+            <div id="rankingPublico" class="mt-4 space-y-2 max-h-96 overflow-y-auto">
+                <div class="text-gray-400 text-center">Carregando...</div>
+            </div>
+            <div class="text-xs text-gray-400 mt-3 text-center">✅ Somente apostas confirmadas pelo administrador valem pontos (5 pontos por acerto exato).</div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- COLUNA ESQUERDA: Participantes + PIX -->
-        <div class="lg:col-span-1 space-y-6">
-            <div class="glass-card p-5">
-                <h2 class="text-xl font-bold flex items-center gap-2 border-b border-yellow-600/40 pb-2 mb-4"><i class="fas fa-users"></i> Apostadores</h2>
-                <div class="space-y-3">
-                    <select id="participantSelect" class="w-full bg-gray-900/80 border border-gray-600 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-yellow-500 outline-none"></select>
-                    <div class="flex gap-2">
-                        <input type="text" id="newParticipantName" placeholder="Seu nome" class="flex-1 bg-gray-900/70 border border-gray-600 rounded-xl px-4 py-2 text-white outline-none focus:border-yellow-500">
-                        <button id="addParticipantBtn" class="btn-gold px-4 py-2 rounded-xl font-bold text-black"><i class="fas fa-user-plus"></i> Entrar</button>
-                    </div>
-                    <button id="resetDemoBtn" class="w-full bg-gray-700/60 hover:bg-gray-700 transition py-2 rounded-xl text-sm"><i class="fas fa-undo-alt"></i> Restaurar demonstração</button>
-                </div>
-            </div>
-
-            <div class="glass-card p-5">
-                <h2 class="text-xl font-bold flex items-center gap-2 border-b border-yellow-600/40 pb-2 mb-3"><i class="fab fa-pix text-blue-400"></i> Pagamento via PIX</h2>
-                <div class="bg-black/40 rounded-2xl p-4 text-center space-y-3">
-                    <div class="text-3xl text-yellow-400"><i class="fas fa-qrcode"></i> <i class="fas fa-mobile-alt"></i></div>
-                    <p class="text-sm font-mono bg-gray-800/70 p-2 rounded-xl">Chave PIX: <strong class="text-yellow-300 text-base">12988461978</strong></p>
-                    <button id="copyPixBtn" class="bg-amber-700/70 hover:bg-amber-600 w-full py-2 rounded-xl text-sm"><i class="fas fa-copy"></i> Copiar chave PIX</button>
-                    <div class="text-xs text-gray-300">Após o pagamento, envie o comprovante no WhatsApp. O administrador confirmará sua aposta.</div>
-                </div>
-                <button id="shareWhatsAppBtn" class="bg-green-700/80 hover:bg-green-600 w-full py-2.5 rounded-xl mt-4 flex items-center justify-center gap-2"><i class="fab fa-whatsapp text-xl"></i> Compartilhar Bolão</button>
-                <p class="text-[11px] text-center text-gray-400 mt-3">📲 Administrador: <strong class="text-yellow-300">12988461978</strong> (resultado e confirmações)</p>
-            </div>
-
-            <!-- ACESSO ADMIN (COM SENHA) -->
-            <div class="glass-card p-5 border-yellow-500/50">
-                <button id="adminLoginBtn" class="w-full bg-yellow-800/60 hover:bg-yellow-700/80 transition py-2 rounded-xl flex items-center justify-center gap-2 font-bold"><i class="fas fa-lock"></i> Acesso Administrador</button>
-                <div id="adminPanel" class="hidden mt-4 admin-panel rounded-xl p-3 space-y-3">
-                    <div class="flex justify-between items-center"><span class="font-bold text-yellow-300"><i class="fas fa-key"></i> Modo Admin</span><button id="adminLogoutBtn" class="text-xs bg-red-800/50 px-2 py-1 rounded">Sair</button></div>
-                    <div id="adminControls" class="space-y-3 text-sm">
-                        <!-- carregar dinamicamente lista de participantes e apostas pendentes/confirmadas -->
-                    </div>
-                    <hr class="border-white/20">
-                    <div><label class="block text-xs">Definir resultado oficial:</label>
-                        <div class="flex gap-2 mt-1">
-                            <input type="number" id="adminHomeGoals" placeholder="Brasil" class="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 w-20 text-center">
-                            <span class="text-yellow-500">x</span>
-                            <input type="number" id="adminAwayGoals" placeholder="Haiti" class="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 w-20 text-center">
-                            <button id="adminSetResultBtn" class="btn-gold text-black font-bold px-3 py-1 rounded-lg text-xs">Definir</button>
-                        </div>
-                    </div>
-                    <div class="text-xs text-amber-300/80">✔ Confirme apostas após comprovante. Somente apostas confirmadas valem pontos.</div>
-                </div>
-            </div>
+    <!-- PAINEL DO ADMINISTRADOR (protegido por senha) -->
+    <div class="card p-6 mt-8 admin-area">
+        <div class="flex justify-between items-center">
+            <h2 class="text-xl font-bold"><i class="fas fa-user-shield"></i> Área do Administrador</h2>
+            <button id="btnAdminLogin" class="bg-yellow-700 px-4 py-1 rounded-full text-sm">🔐 Acesso</button>
         </div>
-
-        <!-- COLUNA CENTRAL + DIREITA: apostas e ranking -->
-        <div class="lg:col-span-2 space-y-6">
-            <!-- RESULTADO OFICIAL (visível para todos) -->
-            <div class="glass-card p-5">
-                <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-flag-checkered text-red-400"></i> Resultado Oficial</h2>
-                <div class="bg-black/30 rounded-2xl p-4 text-center mt-2">
-                    <div class="flex justify-center gap-6 text-3xl font-black">
-                        <div>🇧🇷 <span id="displayHomeResult" class="text-yellow-300 text-4xl">?</span></div>
-                        <span class="text-4xl">x</span>
-                        <div>🇭🇹 <span id="displayAwayResult" class="text-yellow-300 text-4xl">?</span></div>
+        <div id="adminPanel" class="hidden mt-4 space-y-4">
+            <div class="bg-black/40 p-3 rounded-xl">
+                <p class="text-sm text-yellow-300">⚡ Manual: Adicione apostas recebidas pelo WhatsApp</p>
+                <div class="flex flex-wrap gap-2 mt-2">
+                    <input type="text" id="adminNomeAposta" placeholder="Nome do apostador" class="bg-gray-800 rounded-lg px-3 py-1 text-sm flex-1">
+                    <div class="flex gap-1">
+                        <input type="number" id="adminHome" placeholder="BR" class="w-16 bg-gray-800 rounded-lg px-2 text-center">
+                        <span>x</span>
+                        <input type="number" id="adminAway" placeholder="HA" class="w-16 bg-gray-800 rounded-lg px-2 text-center">
                     </div>
-                    <p class="text-xs text-gray-400 mt-2">Resultado definido pelo administrador após o jogo.</p>
+                    <button id="btnAddBetAdmin" class="bg-green-700 px-3 py-1 rounded-lg text-sm"><i class="fas fa-plus"></i> Adicionar aposta</button>
                 </div>
             </div>
-
-            <!-- MINHAS APOSTAS (COM STATUS) -->
-            <div class="glass-card p-5">
-                <div class="flex flex-wrap justify-between items-center gap-3 border-b border-yellow-600/40 pb-2 mb-4">
-                    <h2 class="text-xl font-bold"><i class="fas fa-dice-d6"></i> Minhas Apostas: <span id="selectedUserName" class="text-yellow-300">—</span></h2>
-                    <span class="text-xs bg-black/40 px-3 py-1 rounded-full"><i class="fas fa-info-circle"></i> Aguardando confirmação do ADM</span>
+            <div id="listaApostasAdmin" class="space-y-2 max-h-64 overflow-y-auto text-sm"></div>
+            <hr class="border-white/20">
+            <div class="flex gap-3 items-center flex-wrap">
+                <div class="flex gap-2">
+                    <input type="number" id="resultHome" placeholder="Brasil" class="bg-gray-800 w-20 rounded-lg px-2 py-1 text-center">
+                    <span class="text-yellow-400">x</span>
+                    <input type="number" id="resultAway" placeholder="Haiti" class="bg-gray-800 w-20 rounded-lg px-2 py-1 text-center">
+                    <button id="btnSetResult" class="bg-orange-600 px-3 py-1 rounded-lg text-sm">Definir resultado real</button>
                 </div>
-                <div id="betsContainer" class="space-y-3"></div>
-                <button id="addBetBtn" class="mt-4 w-full border border-dashed border-yellow-500/50 bg-yellow-500/10 hover:bg-yellow-500/20 transition rounded-xl py-3 flex items-center justify-center gap-2 font-semibold"><i class="fas fa-plus-circle"></i> Nova Aposta (R$25,00)</button>
-                <p class="text-[11px] text-gray-400 text-center mt-3">🔔 Máximo 2 apostas por pessoa. Após pagar o PIX, o administrador confirmará seu palpite.</p>
+                <button id="btnResetDemo" class="bg-gray-700 px-3 py-1 rounded-lg text-sm">Reset demo</button>
             </div>
-
-            <!-- RANKING GERAL -->
-            <div class="glass-card p-5">
-                <h2 class="text-xl font-bold flex items-center gap-2 mb-4"><i class="fas fa-trophy text-yellow-400"></i> Classificação (apenas apostas confirmadas)</h2>
-                <div id="rankingTable" class="overflow-x-auto"></div>
-                <p class="text-xs text-gray-400 mt-3">✅ Cada aposta confirmada que acertar o placar exato soma 5 pontos.</p>
-            </div>
+            <p class="text-xs text-gray-400">* Apostas confirmadas (✅) valem pontos. Clique no ícone para confirmar/desconfirmar.</p>
         </div>
     </div>
 </div>
 
 <script>
-    // ---------- CONFIGURAÇÃO ----------
-    const ADMIN_PASSWORD = "bila2026";   // senha para acesso administrativo (alterável)
-    let officialResult = { home: null, away: null };
-    let participants = [];      // cada participante: { id, name, bets: [ { home, away, confirmed } ] }
-    let selectedParticipantId = null;
-    let isAdminLogged = false;
+    // DADOS - administrador adiciona apostas manualmente
+    let bets = []; // cada aposta: { id, nome, home, away, confirmed }
+    let official = { home: null, away: null };
+    let nextId = 1;
 
-    // ---------- HELPERS ----------
-    function saveToLocal() {
-        localStorage.setItem("bolaodabila_v2", JSON.stringify({
-            participants, selectedParticipantId, officialResult
-        }));
+    // Senha do admin
+    const ADMIN_PASS = "bila2026";
+    let adminLogged = false;
+
+    // Carregar do localStorage
+    function loadData() {
+        const saved = localStorage.getItem("bolaodabila_manual");
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                bets = data.bets || [];
+                official = data.official || { home: null, away: null };
+                nextId = data.nextId || 1;
+            } catch(e) {}
+        }
+        if (!bets.length) {
+            // Exemplo inicial
+            bets = [
+                { id: 1, nome: "Carlão do PIX", home: 2, away: 0, confirmed: true },
+                { id: 2, nome: "Marta Boleira", home: 1, away: 0, confirmed: true }
+            ];
+            nextId = 3;
+        }
+    }
+    function saveData() {
+        localStorage.setItem("bolaodabila_manual", JSON.stringify({ bets, official, nextId }));
     }
 
-    function loadFromLocal() {
-        const raw = localStorage.getItem("bolaodabila_v2");
-        if (!raw) { initDemo(); return; }
-        try {
-            const data = JSON.parse(raw);
-            participants = data.participants || [];
-            selectedParticipantId = data.selectedParticipantId || (participants[0]?.id || null);
-            officialResult = data.officialResult || { home: null, away: null };
-            if (!participants.length) initDemo();
-        } catch(e) { initDemo(); }
-    }
-
-    function initDemo() {
-        participants = [
-            { id: "p1", name: "Carlão do PIX", bets: [{ home: 2, away: 0, confirmed: true }, { home: 3, away: 1, confirmed: false }] },
-            { id: "p2", name: "Marta Boleira", bets: [{ home: 1, away: 0, confirmed: true }] },
-            { id: "p3", name: "Ronaldo", bets: [{ home: 4, away: 1, confirmed: false }, { home: 2, away: 2, confirmed: false }] }
-        ];
-        selectedParticipantId = participants[0].id;
-        officialResult = { home: null, away: null };
-        saveToLocal();
-    }
-
-    // pontos de um participante (apenas apostas confirmadas)
-    function computePoints(participant) {
-        if (officialResult.home === null || officialResult.away === null) return 0;
-        let points = 0;
-        participant.bets.forEach(bet => {
-            if (bet.confirmed && bet.home === officialResult.home && bet.away === officialResult.away) {
-                points += 5;
-            }
-        });
-        return points;
-    }
-
-    function getRanking() {
-        return participants.map(p => ({
-            id: p.id,
-            name: p.name,
-            points: computePoints(p),
-            totalBets: p.bets.length,
-            confirmedBets: p.bets.filter(b => b.confirmed).length
+    // Calcular pontos
+    function computePoints() {
+        if (official.home === null || official.away === null) return [];
+        return bets.map(b => ({
+            ...b,
+            points: (b.confirmed && b.home === official.home && b.away === official.away) ? 5 : 0
         })).sort((a,b) => b.points - a.points);
     }
 
-    // RENDERIZAÇÕES PRINCIPAIS
-    function renderParticipantSelector() {
-        const select = document.getElementById("participantSelect");
-        if (!select) return;
-        select.innerHTML = "";
-        participants.forEach(p => {
-            const opt = document.createElement("option");
-            opt.value = p.id;
-            opt.textContent = `${p.name} (${p.bets.filter(b=>b.confirmed).length}/${p.bets.length} conf.)`;
-            if (selectedParticipantId === p.id) opt.selected = true;
-            select.appendChild(opt);
-        });
-        if (!participants.length) select.innerHTML = '<option disabled>Nenhum apostador</option>';
-    }
-
-    function renderBets() {
-        const container = document.getElementById("betsContainer");
-        const nameSpan = document.getElementById("selectedUserName");
-        if (!selectedParticipantId || !participants.length) {
-            nameSpan.innerText = "—";
-            container.innerHTML = '<div class="text-center text-gray-400 py-6"><i class="fas fa-user-slash"></i> Selecione ou crie um apostador</div>';
-            return;
-        }
-        const p = participants.find(p => p.id === selectedParticipantId);
-        if (!p) { nameSpan.innerText = "?"; container.innerHTML = ""; return; }
-        nameSpan.innerText = p.name;
-        if (!p.bets.length) {
-            container.innerHTML = `<div class="bg-white/5 rounded-xl p-5 text-center text-gray-400">Nenhuma aposta ainda. Clique em "Nova Aposta".<br><span class="text-xs">(máx 2 apostas)</span></div>`;
-            return;
-        }
-        container.innerHTML = "";
-        p.bets.forEach((bet, idx) => {
-            const statusText = bet.confirmed ? "✅ CONFIRMADA" : "⏳ AGUARDANDO CONFIRMAÇÃO";
-            const statusClass = bet.confirmed ? "confirmed-badge" : "pending-badge";
-            const div = document.createElement("div");
-            div.className = `rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 ${statusClass}`;
-            div.innerHTML = `
-                <div class="flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-full">
-                    <span class="font-bold">🇧🇷 ${bet.home}</span>
-                    <span class="text-yellow-400">x</span>
-                    <span class="font-bold">${bet.away} 🇭🇹</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs px-2 py-1 rounded-full ${bet.confirmed ? 'bg-green-800/60 text-green-200' : 'bg-yellow-800/60 text-yellow-200'}"><i class="fas ${bet.confirmed ? 'fa-check-circle' : 'fa-clock'}"></i> ${statusText}</span>
-                    ${!bet.confirmed ? `<button data-betidx="${idx}" class="deletePendingBetBtn text-red-400 hover:text-red-200 text-sm ml-2"><i class="fas fa-trash-alt"></i></button>` : ''}
-                </div>
-                <div class="text-xs text-amber-300/70 w-full"><i class="fas fa-coins"></i> R$25,00</div>
-            `;
-            container.appendChild(div);
-        });
-        // eventos para deletar apostas pendentes
-        document.querySelectorAll(".deletePendingBetBtn").forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                const idx = parseInt(btn.getAttribute("data-betidx"));
-                if (!isNaN(idx) && p.bets[idx] && !p.bets[idx].confirmed) {
-                    p.bets.splice(idx, 1);
-                    saveToLocal();
-                    renderBets();
-                    renderParticipantSelector();
-                    renderRanking();
-                    if (isAdminLogged) renderAdminPanel();
-                }
-            });
-        });
-    }
-
+    // Renderizar ranking público
     function renderRanking() {
-        const ranking = getRanking();
-        const container = document.getElementById("rankingTable");
+        const container = document.getElementById("rankingPublico");
         if (!container) return;
-        if (!ranking.length) { container.innerHTML = "<div class='text-center py-6'>Nenhum apostador</div>"; return; }
-        const table = document.createElement("table");
-        table.className = "w-full text-sm";
-        table.innerHTML = `<thead class="border-b border-white/20"><tr><th>#</th><th>Nome</th><th>Apostas Conf.</th><th>Pontos</th></tr></thead><tbody id="rankBody"></tbody>`;
-        const tbody = table.querySelector("#rankBody");
+        const ranking = computePoints();
+        if (ranking.length === 0) {
+            container.innerHTML = '<div class="text-gray-400 text-center">Nenhuma aposta registrada ainda.</div>';
+            return;
+        }
+        let html = `<table class="w-full text-sm"><thead><tr class="border-b border-gray-600"><th>#</th><th>Nome</th><th>Placar</th><th>Pontos</th></tr></thead><tbody>`;
         ranking.forEach((r, idx) => {
-            const row = document.createElement("tr");
-            row.className = `border-b border-white/5 ${r.id === selectedParticipantId ? "bg-yellow-500/10" : ""}`;
-            row.innerHTML = `<td class="py-2 font-bold ${idx===0?'text-yellow-400':''}">${idx+1}</td>
-                             <td>${r.name}</td>
-                             <td class="text-center">${r.confirmedBets}/${r.totalBets}</td>
-                             <td class="text-right font-bold text-yellow-300">${r.points}</td>`;
-            tbody.appendChild(row);
+            html += `<tr class="border-b border-gray-700/50">
+                        <td class="py-1">${idx+1}</td>
+                        <td>${r.nome} ${r.confirmed ? '✅' : '⏳'}</td>
+                        <td>${r.home} x ${r.away}</td>
+                        <td class="font-bold text-yellow-300">${r.points}</td>
+                     </tr>`;
         });
-        container.innerHTML = "";
-        container.appendChild(table);
+        html += `</tbody></table>`;
+        container.innerHTML = html;
     }
 
-    function renderOfficialResultDisplay() {
-        document.getElementById("displayHomeResult").innerText = (officialResult.home !== null) ? officialResult.home : "?";
-        document.getElementById("displayAwayResult").innerText = (officialResult.away !== null) ? officialResult.away : "?";
-    }
-
-    // ADMIN PANEL - renderiza todos os participantes e apostas com botões de confirmação
-    function renderAdminPanel() {
-        const container = document.getElementById("adminControls");
+    // Renderizar lista de apostas no painel admin
+    function renderAdminList() {
+        const container = document.getElementById("listaApostasAdmin");
         if (!container) return;
-        if (!isAdminLogged) { container.innerHTML = ""; return; }
-        if (!participants.length) { container.innerHTML = "<div class='text-gray-400'>Nenhum participante</div>"; return; }
-        let html = `<div class="text-xs font-bold mb-2">📋 Gerenciar apostas (confirmar/rejeitar)</div>`;
-        participants.forEach(part => {
-            html += `<div class="bg-black/40 rounded-lg p-2 mb-2">
-                        <div class="font-semibold text-yellow-300">${part.name}</div>`;
-            if (part.bets.length === 0) html += `<div class="text-gray-500 text-xs">Sem apostas</div>`;
-            part.bets.forEach((bet, idx) => {
-                const status = bet.confirmed ? "✅ Confirmada" : "⏳ Pendente";
-                html += `<div class="flex justify-between items-center border-t border-white/10 mt-1 pt-1 text-xs">
-                            <span>🇧🇷 ${bet.home} x ${bet.away} 🇭🇹</span>
-                            <span class="text-amber-300">${status}</span>
-                            <div class="flex gap-1">
-                                ${!bet.confirmed ? `<button data-pid="${part.id}" data-bid="${idx}" class="confirmBetBtn bg-green-700/60 hover:bg-green-600 px-2 py-0.5 rounded">Confirmar</button>` : `<button data-pid="${part.id}" data-bid="${idx}" class="unconfirmBetBtn bg-red-700/60 hover:bg-red-600 px-2 py-0.5 rounded">Revogar</button>`}
-                                <button data-pid="${part.id}" data-bid="${idx}" class="deleteBetAdminBtn bg-gray-700/80 hover:bg-gray-600 px-2 py-0.5 rounded"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>`;
-            });
-            html += `</div>`;
+        if (!bets.length) { container.innerHTML = "<div class='text-gray-400'>Nenhuma aposta adicionada</div>"; return; }
+        let html = "";
+        bets.forEach((bet, idx) => {
+            html += `<div class="bg-black/30 p-2 rounded-lg flex justify-between items-center">
+                        <div><span class="font-bold">${bet.nome}</span> - ${bet.home} x ${bet.away} 
+                        <span class="text-xs ml-2 ${bet.confirmed ? 'text-green-400' : 'text-yellow-400'}">${bet.confirmed ? 'Confirmada' : 'Pendente'}</span></div>
+                        <div class="flex gap-2">
+                            <button data-idx="${idx}" class="toggleConfirmBtn text-sm px-2 py-0.5 rounded ${bet.confirmed ? 'bg-yellow-700' : 'bg-green-700'}">${bet.confirmed ? 'Revogar' : 'Confirmar'}</button>
+                            <button data-idx="${idx}" class="deleteBetBtn text-red-400 text-sm"><i class="fas fa-trash"></i></button>
+                        </div>
+                     </div>`;
         });
         container.innerHTML = html;
-        // eventos de confirmação
-        document.querySelectorAll(".confirmBetBtn").forEach(btn => {
+        // eventos
+        document.querySelectorAll(".toggleConfirmBtn").forEach(btn => {
             btn.addEventListener("click", (e) => {
-                const pid = btn.getAttribute("data-pid");
-                const bidx = parseInt(btn.getAttribute("data-bid"));
-                const part = participants.find(p => p.id === pid);
-                if (part && part.bets[bidx]) {
-                    part.bets[bidx].confirmed = true;
-                    saveToLocal();
-                    renderAdminPanel();
-                    renderBets();
-                    renderParticipantSelector();
+                const idx = parseInt(btn.getAttribute("data-idx"));
+                if (!isNaN(idx) && bets[idx]) {
+                    bets[idx].confirmed = !bets[idx].confirmed;
+                    saveData();
+                    renderAdminList();
                     renderRanking();
                 }
             });
         });
-        document.querySelectorAll(".unconfirmBetBtn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                const pid = btn.getAttribute("data-pid");
-                const bidx = parseInt(btn.getAttribute("data-bid"));
-                const part = participants.find(p => p.id === pid);
-                if (part && part.bets[bidx]) {
-                    part.bets[bidx].confirmed = false;
-                    saveToLocal();
-                    renderAdminPanel();
-                    renderBets();
-                    renderParticipantSelector();
-                    renderRanking();
-                }
-            });
-        });
-        document.querySelectorAll(".deleteBetAdminBtn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                const pid = btn.getAttribute("data-pid");
-                const bidx = parseInt(btn.getAttribute("data-bid"));
-                const part = participants.find(p => p.id === pid);
-                if (part && part.bets[bidx]) {
-                    part.bets.splice(bidx, 1);
-                    saveToLocal();
-                    renderAdminPanel();
-                    renderBets();
-                    renderParticipantSelector();
+        document.querySelectorAll(".deleteBetBtn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const idx = parseInt(btn.getAttribute("data-idx"));
+                if (!isNaN(idx) && bets[idx]) {
+                    bets.splice(idx, 1);
+                    saveData();
+                    renderAdminList();
                     renderRanking();
                 }
             });
         });
     }
 
-    // ADMIN LOGIN/LOGOUT
-    function showAdminLogin() {
-        const pwd = prompt("Digite a senha de administrador:");
-        if (pwd === ADMIN_PASSWORD) {
-            isAdminLogged = true;
+    // admin adicionar aposta manual
+    function addBetManual(nome, home, away) {
+        if (!nome.trim()) { alert("Nome obrigatório"); return false; }
+        if (isNaN(home) || isNaN(away) || home<0 || away<0) { alert("Placar inválido"); return false; }
+        bets.push({
+            id: nextId++,
+            nome: nome.trim(),
+            home: parseInt(home),
+            away: parseInt(away),
+            confirmed: false   // por padrão, não confirmada. Admin confirma depois de receber PIX
+        });
+        saveData();
+        renderAdminList();
+        renderRanking();
+        alert(`Aposta de ${nome} (${home} x ${away}) adicionada. Lembre-se de confirmar após pagamento.`);
+        return true;
+    }
+
+    // Definir resultado oficial
+    function setOfficialResult(home, away) {
+        if (isNaN(home) || isNaN(away) || home<0 || away<0) { alert("Resultado inválido"); return; }
+        official.home = home;
+        official.away = away;
+        saveData();
+        renderRanking();
+        alert(`Resultado oficial definido: Brasil ${home} x ${away} Haiti. Pontos atualizados!`);
+    }
+
+    // Evento do botão WhatsApp (jogador)
+    function setupWhatsAppButton() {
+        const btn = document.getElementById("btnWhatsApp");
+        if (!btn) return;
+        btn.addEventListener("click", () => {
+            const nome = document.getElementById("jogadorNome").value.trim();
+            const golsBrasil = parseInt(document.getElementById("golsBrasil").value);
+            const golsHaiti = parseInt(document.getElementById("golsHaiti").value);
+            if (!nome) {
+                alert("Digite seu nome antes de enviar.");
+                return;
+            }
+            if (isNaN(golsBrasil) || isNaN(golsHaiti) || golsBrasil<0 || golsHaiti<0) {
+                alert("Placar inválido.");
+                return;
+            }
+            const mensagem = `[BOLÃO DA BILA]%0A📌 *Nome:* ${nome}%0A⚽ *Aposta:* Brasil ${golsBrasil} x ${golsHaiti} Haiti%0A💰 *Valor:* R$ 25,00 (PIX 12988461978)`;
+            const numeroAdmin = "5512988461978"; // formato internacional
+            const url = `https://wa.me/${numeroAdmin}?text=${mensagem}`;
+            window.open(url, "_blank");
+        });
+    }
+
+    // Admin login
+    function adminLogin() {
+        const pwd = prompt("Digite a senha do administrador:");
+        if (pwd === ADMIN_PASS) {
+            adminLogged = true;
             document.getElementById("adminPanel").classList.remove("hidden");
-            renderAdminPanel();
+            renderAdminList();
         } else if (pwd !== null) alert("Senha incorreta!");
     }
-    function logoutAdmin() {
-        isAdminLogged = false;
-        document.getElementById("adminPanel").classList.add("hidden");
-    }
 
-    // ADICIONAR APOSTA (pendente, limite 2 total)
-    function addBetToSelected() {
-        if (!selectedParticipantId) { alert("Selecione ou crie um apostador primeiro."); return; }
-        const participant = participants.find(p => p.id === selectedParticipantId);
-        if (!participant) return;
-        if (participant.bets.length >= 2) {
-            alert("❌ Você já atingiu o limite máximo de 2 apostas por pessoa.");
-            return;
-        }
-        let home = parseInt(prompt("🇧🇷 Gols do BRASIL:", "2"));
-        let away = parseInt(prompt("🇭🇹 Gols do HAITI:", "0"));
-        if (isNaN(home) || isNaN(away)) { alert("Placar inválido"); return; }
-        if (home < 0 || away < 0) { alert("Valores negativos não são permitidos"); return; }
-        const alreadyExists = participant.bets.some(b => b.home === home && b.away === away);
-        if (alreadyExists) { alert("Você já possui uma aposta com esse placar. Escolha outro."); return; }
-        participant.bets.push({ home, away, confirmed: false });
-        saveToLocal();
-        renderBets();
-        renderParticipantSelector();
-        renderRanking();
-        if (isAdminLogged) renderAdminPanel();
-        alert(`✅ Aposta registrada (PENDENTE): Brasil ${home} x ${away} Haiti.\n💰 Valor: R$ 25,00.\n🔔 Realize o PIX para 12988461978 e envie comprovante no WhatsApp. O administrador confirmará sua aposta.`);
-    }
-
-    // CRUD Participante
-    function addParticipant(name) {
-        if (!name.trim()) name = "Novo Jogador";
-        name = name.trim().substring(0, 25);
-        const newId = "usr_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6);
-        participants.push({ id: newId, name, bets: [] });
-        selectedParticipantId = newId;
-        saveToLocal();
-        renderParticipantSelector();
-        renderBets();
-        renderRanking();
-        if (isAdminLogged) renderAdminPanel();
-    }
-
-    function deleteSelectedParticipant() {
-        if (participants.length <= 1) { alert("É necessário pelo menos um participante."); return; }
-        const idx = participants.findIndex(p => p.id === selectedParticipantId);
-        if (idx !== -1) participants.splice(idx, 1);
-        selectedParticipantId = participants[0]?.id || null;
-        saveToLocal();
-        renderParticipantSelector();
-        renderBets();
-        renderRanking();
-        if (isAdminLogged) renderAdminPanel();
-    }
-
-    function resetDemo() {
-        initDemo();
-        officialResult = { home: null, away: null };
-        saveToLocal();
-        renderParticipantSelector();
-        renderBets();
-        renderRanking();
-        renderOfficialResultDisplay();
-        if (isAdminLogged) renderAdminPanel();
-    }
-
-    // ADMIN definir resultado oficial
-    function setOfficialResultAdmin() {
-        const home = parseInt(document.getElementById("adminHomeGoals").value);
-        const away = parseInt(document.getElementById("adminAwayGoals").value);
-        if (isNaN(home) || isNaN(away) || home<0 || away<0) { alert("Insira números válidos para o placar."); return; }
-        officialResult.home = home;
-        officialResult.away = away;
-        saveToLocal();
-        renderOfficialResultDisplay();
-        renderRanking();
-        alert(`Resultado oficial definido: Brasil ${home} x ${away} Haiti. Pontuação atualizada!`);
-        if (isAdminLogged) renderAdminPanel();
-    }
-
-    // EVENTOS E INICIALIZAÇÃO
-    function bindEvents() {
-        document.getElementById("participantSelect")?.addEventListener("change", (e) => {
-            selectedParticipantId = e.target.value;
-            saveToLocal();
-            renderBets();
-            renderRanking();
-            renderParticipantSelector();
-        });
-        document.getElementById("addParticipantBtn")?.addEventListener("click", () => {
-            const inp = document.getElementById("newParticipantName");
-            addParticipant(inp.value);
-            inp.value = "";
-        });
-        document.getElementById("deleteParticipantBtn")?.addEventListener("click", deleteSelectedParticipant);
-        document.getElementById("resetDemoBtn")?.addEventListener("click", resetDemo);
-        document.getElementById("addBetBtn")?.addEventListener("click", addBetToSelected);
-        document.getElementById("copyPixBtn")?.addEventListener("click", () => { navigator.clipboard.writeText("12988461978"); alert("Chave PIX copiada: 12988461978"); });
-        document.getElementById("shareWhatsAppBtn")?.addEventListener("click", () => {
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://wa.me/?text=Bolão%20da%20Bila%20-%20Brasil%20x%20Haiti!%20Faça%20suas%20apostas%20(2%20máx)%20R$25%20cada.%20Link:%20${url}`, "_blank");
-        });
-        document.getElementById("adminLoginBtn")?.addEventListener("click", showAdminLogin);
-        document.getElementById("adminLogoutBtn")?.addEventListener("click", logoutAdmin);
-        document.getElementById("adminSetResultBtn")?.addEventListener("click", setOfficialResultAdmin);
-    }
-
+    // Inicialização
     function init() {
-        loadFromLocal();
-        bindEvents();
-        renderParticipantSelector();
-        renderBets();
+        loadData();
         renderRanking();
-        renderOfficialResultDisplay();
-        if (isAdminLogged) renderAdminPanel();
+        setupWhatsAppButton();
+        // elementos admin
+        const btnLogin = document.getElementById("btnAdminLogin");
+        if (btnLogin) btnLogin.onclick = adminLogin;
+        const btnAdd = document.getElementById("btnAddBetAdmin");
+        if (btnAdd) btnAdd.onclick = () => {
+            const nome = document.getElementById("adminNomeAposta").value;
+            const home = parseInt(document.getElementById("adminHome").value);
+            const away = parseInt(document.getElementById("adminAway").value);
+            if (addBetManual(nome, home, away)) {
+                document.getElementById("adminNomeAposta").value = "";
+                document.getElementById("adminHome").value = "";
+                document.getElementById("adminAway").value = "";
+            }
+        };
+        const btnSetResult = document.getElementById("btnSetResult");
+        if (btnSetResult) btnSetResult.onclick = () => {
+            const home = parseInt(document.getElementById("resultHome").value);
+            const away = parseInt(document.getElementById("resultAway").value);
+            setOfficialResult(home, away);
+        };
+        const btnReset = document.getElementById("btnResetDemo");
+        if (btnReset) btnReset.onclick = () => {
+            if (confirm("Resetar para dados de demonstração? Isso apagará todas as apostas manuais.")) {
+                bets = [
+                    { id: 1, nome: "Carlão do PIX", home: 2, away: 0, confirmed: true },
+                    { id: 2, nome: "Marta Boleira", home: 1, away: 0, confirmed: true }
+                ];
+                nextId = 3;
+                official = { home: null, away: null };
+                saveData();
+                renderRanking();
+                if (adminLogged) renderAdminList();
+            }
+        };
     }
     init();
 </script>
