@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Bolão da Bila - Ranking</title>
+    <title>Bolão da Bila | Brasil x Haiti</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -14,12 +14,10 @@
     </style>
 </head>
 <body class="text-white p-4">
-
 <div class="max-w-4xl mx-auto">
-    <!-- CABEÇALHO -->
     <div class="text-center mb-6">
-        <h1 class="text-5xl font-black bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">BOLÃO DA BILA</h1>
-        <p class="text-2xl">🇧🇷 BRASIL x HAITI 🇭🇹</p>
+        <h1 class="text-5xl font-bold text-yellow-400">BOLÃO DA BILA</h1>
+        <h2 class="text-2xl">🇧🇷 BRASIL x HAITI 🇭🇹</h2>
         <div class="flex justify-center gap-3 mt-3 flex-wrap">
             <span class="bg-black/50 px-4 py-1 rounded-full text-amber-300">🎯 Placar exato</span>
             <span class="bg-black/50 px-4 py-1 rounded-full text-amber-300">💰 R$ 25,00 / aposta</span>
@@ -28,14 +26,14 @@
     </div>
 
     <div class="grid md:grid-cols-2 gap-6">
-        <!-- COLUDA ESQUERDA: INFORMAÇÕES + WHATSAPP + PIX -->
+        <!-- COLUDA ESQUERDA -->
         <div class="card p-6">
             <h2 class="text-2xl font-bold mb-4"><i class="fab fa-whatsapp text-green-500"></i> Como apostar</h2>
             <ol class="list-decimal list-inside space-y-2 text-gray-200 mb-6">
                 <li>Escolha um placar para Brasil x Haiti.</li>
                 <li>Pague <strong class="text-yellow-300">R$ 25,00 por aposta</strong> via PIX para a chave abaixo.</li>
                 <li>Clique no botão verde e envie uma mensagem com <strong>seu nome + o placar</strong>.</li>
-                <li>O administrador confirmará sua aposta e ela aparecerá no ranking.</li>
+                <li>O administrador adicionará sua aposta no arquivo `dados.json` do GitHub.</li>
             </ol>
             <div class="bg-black/40 rounded-2xl p-4 text-center mb-5">
                 <p class="text-sm text-gray-300">Chave PIX (copiar):</p>
@@ -50,55 +48,43 @@
         <!-- COLUNA DIREITA: RANKING -->
         <div class="card p-6">
             <h2 class="text-2xl font-bold mb-4"><i class="fas fa-trophy text-yellow-400"></i> Classificação</h2>
-            <div id="rankingPublico" class="space-y-2 max-h-96 overflow-y-auto">
-                <div class="text-gray-400 text-center">Carregando ranking...</div>
+            <div id="ranking" class="overflow-x-auto">
+                <div class="text-gray-400 text-center py-8">Carregando ranking...</div>
             </div>
-            <p class="text-xs text-gray-400 text-center mt-4">✅ Atualizado em tempo real. Apostas confirmadas valem 5 pontos (placar exato).</p>
+            <p class="text-xs text-gray-400 text-center mt-4">✅ Atualiza automaticamente. Recarregue a página para ver as últimas apostas.</p>
         </div>
     </div>
 </div>
 
 <script>
-    // ============================================
-    // Dados salvos no navegador do ADMINISTRADOR
-    // ============================================
+    // URL do arquivo JSON no GitHub Pages (substitua pelo seu usuário/repositório)
+    const URL_JSON = "dados.json";  // mesmo diretório, ou caminho completo como "https://SEU_USUARIO.github.io/SEU_REPO/dados.json"
+
     let apostas = [];
-    let resultadoOficial = { home: null, away: null };
-    let adminLogado = false;
+    let resultado = { home: null, away: null };
 
-    function carregarDados() {
-        const dados = localStorage.getItem("bolaobila_final");
-        if (dados) {
-            try {
-                const obj = JSON.parse(dados);
-                apostas = obj.apostas || [];
-                resultadoOficial = obj.resultadoOficial || { home: null, away: null };
-            } catch(e) {}
+    async function carregarRanking() {
+        try {
+            const resposta = await fetch(URL_JSON + "?t=" + new Date().getTime()); // evitar cache
+            const dados = await resposta.json();
+            apostas = dados.apostas || [];
+            resultado = dados.resultado || { home: null, away: null };
+            renderizar();
+        } catch (erro) {
+            document.getElementById("ranking").innerHTML = "<div class='text-red-400'>Erro ao carregar dados. Verifique se o arquivo dados.json existe e está acessível.</div>";
         }
-        if (apostas.length === 0) {
-            apostas = [
-                { nome: "Carlão do PIX", home: 2, away: 0, confirmed: true },
-                { nome: "Marta Boleira", home: 1, away: 0, confirmed: false }
-            ];
-            salvarDados();
-        }
-        renderizarRanking();
-    }
-
-    function salvarDados() {
-        localStorage.setItem("bolaobila_final", JSON.stringify({ apostas, resultadoOficial }));
     }
 
     function calcularPontos(aposta) {
-        if (resultadoOficial.home === null || resultadoOficial.away === null) return 0;
-        if (aposta.confirmed && aposta.home === resultadoOficial.home && aposta.away === resultadoOficial.away) return 5;
+        if (resultado.home === null || resultado.away === null) return 0;
+        if (aposta.confirmed && aposta.home === resultado.home && aposta.away === resultado.away) return 5;
         return 0;
     }
 
-    function renderizarRanking() {
-        const container = document.getElementById("rankingPublico");
-        if (!apostas.length) {
-            container.innerHTML = "<div class='text-center text-gray-400'>Nenhuma aposta registrada.</div>";
+    function renderizar() {
+        const container = document.getElementById("ranking");
+        if (apostas.length === 0) {
+            container.innerHTML = "<div class='text-center text-gray-400'>Nenhuma aposta ainda.</div>";
             return;
         }
         const ranking = [...apostas].map(a => ({
@@ -106,149 +92,32 @@
             pontos: calcularPontos(a)
         })).sort((a,b) => b.pontos - a.pontos);
         
-        let html = `<table class="w-full text-sm"><thead class="border-b border-gray-600"><tr><th>#</th><th>Nome</th><th>Placar</th><th>Pontos</th></tr></thead><tbody>`;
+        let html = `<table class="w-full text-sm"><thead class="border-b border-gray-500"><tr><th>#</th><th>Nome</th><th>Placar</th><th>Pontos</th></tr></thead><tbody>`;
         ranking.forEach((r, idx) => {
-            html += `<tr class="border-b border-gray-700/50">
+            html += `<tr class="border-b border-gray-700">
                         <td class="py-1">${idx+1}${idx===0?'🏆':''}</td>
                         <td>${r.nome} ${r.confirmed ? '✅' : '⏳'}</td>
                         <td>${r.home} x ${r.away}</td>
                         <td class="font-bold text-yellow-300">${r.pontos}</td>
-                     </tr>`;
+                      </tr>`;
         });
-        html += `</tbody></table>`;
-        if (resultadoOficial.home !== null && resultadoOficial.away !== null) {
-            html += `<div class="mt-2 text-xs text-green-300 bg-black/30 p-1 rounded">Resultado oficial: Brasil ${resultadoOficial.home} x ${resultadoOficial.away} Haiti</div>`;
+        html += `</tbody>}|`;
+        if (resultado.home !== null && resultado.away !== null) {
+            html += `<div class="mt-2 text-xs text-green-300 bg-black/30 p-1 rounded">Resultado oficial: Brasil ${resultado.home} x ${resultado.away} Haiti</div>`;
         }
         container.innerHTML = html;
     }
 
-    // ============================================
-    // PAINEL DO ADMINISTRADOR (oculto, acessível via parâmetro na URL)
-    // ============================================
-    const senhaAdmin = "bila2026";
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("admin") === senhaAdmin) {
-        adminLogado = true;
-        // Injetar o painel flutuante
-        document.body.insertAdjacentHTML("beforeend", `
-            <div style="position:fixed; bottom:20px; right:20px; background:#000000dd; border:2px solid #f5b042; border-radius:1rem; padding:1rem; max-width:320px; z-index:1000; backdrop-filter:blur(4px);">
-                <h3 class="text-yellow-400 font-bold text-lg mb-2">🔧 Admin</h3>
-                <div class="mb-2">
-                    <input type="text" id="novoNome" placeholder="Nome do apostador" class="bg-gray-800 p-1 w-full rounded text-sm">
-                    <div class="flex gap-1 mt-1">
-                        <input type="number" id="novaHome" placeholder="Brasil" class="bg-gray-800 w-16 rounded text-center">
-                        <span class="text-yellow-400">x</span>
-                        <input type="number" id="novaAway" placeholder="Haiti" class="bg-gray-800 w-16 rounded text-center">
-                        <button id="btnAdd" class="bg-green-700 px-2 rounded text-sm"><i class="fas fa-plus"></i> Add</button>
-                    </div>
-                </div>
-                <div id="listaAdmin" class="max-h-48 overflow-auto text-sm mb-2 bg-black/40 rounded p-1"></div>
-                <div class="flex gap-1 flex-wrap">
-                    <input type="number" id="resHome" placeholder="Result. BR" class="bg-gray-800 w-16 rounded text-center text-sm">
-                    <span class="text-yellow-400">x</span>
-                    <input type="number" id="resAway" placeholder="Result. HT" class="bg-gray-800 w-16 rounded text-center text-sm">
-                    <button id="btnResult" class="bg-orange-600 px-2 rounded text-sm">Definir</button>
-                    <button id="btnReset" class="bg-red-700 px-2 rounded text-sm">Reset</button>
-                </div>
-                <p class="text-xs text-gray-400 mt-1">✔ Clique em "Confirmar" para validar aposta.</p>
-                <button id="fecharAdmin" class="text-xs text-gray-400 mt-1 underline">Fechar painel</button>
-            </div>
-        `);
-        
-        function renderizarAdminLista() {
-            const container = document.getElementById("listaAdmin");
-            if (!container) return;
-            if (apostas.length === 0) { container.innerHTML = "<div class='text-gray-400'>Nenhuma aposta</div>"; return; }
-            let html = "";
-            apostas.forEach((a, idx) => {
-                html += `<div class="flex justify-between items-center border-b border-gray-600 py-1">
-                            <span><strong>${a.nome}</strong> ${a.home}x${a.away}</span>
-                            <div>
-                                <button data-idx="${idx}" class="btnConf text-xs px-1 rounded ${a.confirmed ? 'bg-yellow-700' : 'bg-green-700'}">${a.confirmed ? 'Revogar' : 'Confirmar'}</button>
-                                <button data-idx="${idx}" class="btnDel text-xs bg-red-700 px-1 rounded ml-1">X</button>
-                            </div>
-                         </div>`;
-            });
-            container.innerHTML = html;
-            // Eventos dos botões dinâmicos
-            document.querySelectorAll(".btnConf").forEach(btn => {
-                btn.addEventListener("click", (e) => {
-                    const idx = parseInt(btn.getAttribute("data-idx"));
-                    apostas[idx].confirmed = !apostas[idx].confirmed;
-                    salvarDados();
-                    renderizarRanking();
-                    renderizarAdminLista();
-                });
-            });
-            document.querySelectorAll(".btnDel").forEach(btn => {
-                btn.addEventListener("click", (e) => {
-                    const idx = parseInt(btn.getAttribute("data-idx"));
-                    apostas.splice(idx, 1);
-                    salvarDados();
-                    renderizarRanking();
-                    renderizarAdminLista();
-                });
-            });
-        }
-        
-        document.getElementById("btnAdd").addEventListener("click", () => {
-            const nome = document.getElementById("novoNome").value.trim();
-            const home = parseInt(document.getElementById("novaHome").value);
-            const away = parseInt(document.getElementById("novaAway").value);
-            if (!nome || isNaN(home) || isNaN(away) || home<0 || away<0) {
-                alert("Preencha nome e placar válidos");
-                return;
-            }
-            apostas.push({ nome, home, away, confirmed: false });
-            salvarDados();
-            renderizarRanking();
-            renderizarAdminLista();
-            document.getElementById("novoNome").value = "";
-            document.getElementById("novaHome").value = "";
-            document.getElementById("novaAway").value = "";
-        });
-        document.getElementById("btnResult").addEventListener("click", () => {
-            const home = parseInt(document.getElementById("resHome").value);
-            const away = parseInt(document.getElementById("resAway").value);
-            if (isNaN(home) || isNaN(away) || home<0 || away<0) {
-                alert("Digite o placar real do jogo");
-                return;
-            }
-            resultadoOficial = { home, away };
-            salvarDados();
-            renderizarRanking();
-            alert(`Resultado oficial definido: Brasil ${home} x ${away} Haiti`);
-        });
-        document.getElementById("btnReset").addEventListener("click", () => {
-            if (confirm("Isso apagará TODAS as apostas e o resultado. Deseja continuar?")) {
-                apostas = [];
-                resultadoOficial = { home: null, away: null };
-                salvarDados();
-                renderizarRanking();
-                renderizarAdminLista();
-            }
-        });
-        document.getElementById("fecharAdmin").addEventListener("click", () => {
-            document.querySelector("div[style*='position:fixed']").remove();
-        });
-        renderizarAdminLista();
-    }
-
-    // ============================================
-    // FUNÇÕES DOS BOTÕES PÚBLICOS
-    // ============================================
-    document.getElementById("copyPixBtn")?.addEventListener("click", () => {
+    document.getElementById("copyPixBtn").onclick = () => {
         navigator.clipboard.writeText("12988461978");
-        alert("Chave PIX copiada: 12988461978");
-    });
-    document.getElementById("btnWhatsApp")?.addEventListener("click", () => {
-        const numeroAdmin = "5512988461978";
-        const mensagem = "Olá, administrador!%0A*Meu nome:* %0A*Minha aposta:* Brasil _ x _ Haiti%0A*Comprovante PIX:* anexarei%0A(Substitua pelos valores)";
-        window.open(`https://wa.me/${numeroAdmin}?text=${mensagem}`, "_blank");
-    });
+        alert("Chave PIX copiada!");
+    };
+    document.getElementById("btnWhatsApp").onclick = () => {
+        window.open("https://wa.me/5512988461978?text=Olá%20administrador!%0AMeu%20nome:%20%0AMinha%20aposta:%20Brasil%20_%20x%20_%20Haiti%0AComprovante%20PIX%20anexado", "_blank");
+    };
 
-    // Inicialização
-    carregarDados();
+    carregarRanking();
+    setInterval(carregarRanking, 10000); // atualiza a cada 10 segundos
 </script>
 </body>
 </html>
