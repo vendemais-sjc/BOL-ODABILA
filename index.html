@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Bolão da Bila | Brasil x Haiti - Placar Exato</title>
-    <!-- Tailwind + Font Awesome + Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;600;700;800&display=swap" rel="stylesheet">
@@ -28,31 +27,51 @@
         .admin-badge { background: rgba(224, 124, 31, 0.2); border: 1px solid #e07c1f; }
         .number-input { -moz-appearance: textfield; }
         .saved-badge { background: #0f3b2c; color: #a7f3d0; }
+        .admin-only { display: none; }
+        .admin-visible { display: block; }
     </style>
 </head>
 <body class="text-white p-4 md:p-6">
     <div class="max-w-6xl mx-auto">
-        <!-- CABEÇALHO -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center gap-3 bg-black/40 backdrop-blur rounded-full px-6 py-2 mb-4 border border-yellow-600/40">
-                <i class="fas fa-futbol text-yellow-500 text-xl animate-pulse"></i>
-                <span class="text-sm font-bold tracking-widest text-yellow-300">BOLÃO DA BILA</span>
-                <i class="fas fa-crown text-yellow-500 text-xl"></i>
+        <!-- CABEÇALHO COM BOTÃO ADMIN -->
+        <div class="flex justify-between items-center mb-6 flex-wrap gap-2">
+            <div class="text-center flex-1">
+                <div class="inline-flex items-center gap-3 bg-black/40 backdrop-blur rounded-full px-6 py-2 mb-2 border border-yellow-600/40">
+                    <i class="fas fa-futbol text-yellow-500 text-xl animate-pulse"></i>
+                    <span class="text-sm font-bold tracking-widest text-yellow-300">BOLÃO DA BILA</span>
+                    <i class="fas fa-crown text-yellow-500 text-xl"></i>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-black bg-gradient-to-r from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">BRASIL x HAITI</h1>
+                <p class="text-gray-200 text-lg mt-2 font-medium">⚽ PLACAR EXATO · APENAS 2 APOSTAS POR PARTICIPANTE ⚽</p>
+                <div class="mt-3 flex justify-center gap-3 flex-wrap">
+                    <span class="bg-black/50 text-amber-300 text-sm px-4 py-1.5 rounded-full"><i class="fas fa-tag"></i> Cada aposta: R$ 25,00</span>
+                    <span class="bg-black/50 text-amber-300 text-sm px-4 py-1.5 rounded-full"><i class="fas fa-chart-line"></i> Pontuação: placar exato = 5 pontos</span>
+                </div>
             </div>
-            <h1 class="text-5xl md:text-6xl font-black bg-gradient-to-r from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">BRASIL x HAITI</h1>
-            <p class="text-gray-200 text-lg mt-2 font-medium">⚽ PLACAR EXATO · APENAS 2 APOSTAS POR PARTICIPANTE ⚽</p>
-            <div class="mt-3 flex justify-center gap-3 flex-wrap">
-                <span class="bg-black/50 text-amber-300 text-sm px-4 py-1.5 rounded-full"><i class="fas fa-tag"></i> Cada aposta: R$ 25,00</span>
-                <span class="bg-black/50 text-amber-300 text-sm px-4 py-1.5 rounded-full"><i class="fas fa-chart-line"></i> Pontuação: placar exato = 5 pontos</span>
+            <!-- Botão para alternar modo Admin -->
+            <button id="toggleAdminBtn" class="bg-gray-800/80 hover:bg-gray-700 px-4 py-2 rounded-xl flex items-center gap-2 text-sm"><i class="fas fa-lock"></i> Modo Admin</button>
+        </div>
+
+        <!-- MODAL DE SENHA (escondido inicialmente) -->
+        <div id="adminModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+            <div class="glass-card p-6 w-96">
+                <h3 class="text-xl font-bold mb-4"><i class="fas fa-shield-alt"></i> Acesso Administrador</h3>
+                <input type="password" id="adminPassword" placeholder="Digite a senha" class="w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-2 mb-4 text-white">
+                <div class="flex gap-3">
+                    <button id="adminLoginBtn" class="btn-gold flex-1 py-2 rounded-xl font-bold">Entrar</button>
+                    <button id="adminModalClose" class="bg-gray-700 flex-1 py-2 rounded-xl">Cancelar</button>
+                </div>
+                <p class="text-xs text-gray-400 mt-3">Senha padrão: <strong class="text-yellow-300">admin123</strong></p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-7">
-            <!-- COLUNA ESQUERDA - GERENCIAMENTO E PIX -->
+            <!-- COLUNA ESQUERDA - GERENCIAMENTO (ADMIN) + PIX -->
             <div class="lg:col-span-1 space-y-6">
-                <div class="glass-card p-5">
+                <!-- Painel de Gerenciamento de Apostadores (admin only) -->
+                <div id="adminPanel" class="glass-card p-5 admin-only">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-users-cog"></i> Apostadores</h2>
+                        <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-users-cog"></i> Gerenciar Apostadores</h2>
                         <span id="participantCount" class="saved-badge text-xs px-2 py-1 rounded-full">0 salvos</span>
                     </div>
                     <div class="space-y-3 mt-3">
@@ -65,10 +84,11 @@
                         </div>
                         <button id="deleteParticipantBtn" class="w-full bg-red-800/60 hover:bg-red-700 py-2 rounded-xl text-sm"><i class="fas fa-trash-alt"></i> Remover Apostador</button>
                         <button id="resetDemoBtn" class="w-full bg-gray-700/60 hover:bg-gray-700 py-2 rounded-xl text-sm"><i class="fas fa-history"></i> Restaurar Demo</button>
-                        <button id="forceSaveBtn" class="w-full bg-blue-800/50 hover:bg-blue-700 py-2 rounded-xl text-sm"><i class="fas fa-save"></i> Forçar salvamento agora</button>
+                        <button id="forceSaveBtn" class="w-full bg-blue-800/50 hover:bg-blue-700 py-2 rounded-xl text-sm"><i class="fas fa-save"></i> Forçar salvamento</button>
                     </div>
                 </div>
 
+                <!-- Informações de PIX (visível para todos) -->
                 <div class="glass-card p-5">
                     <h2 class="text-xl font-bold flex items-center gap-2"><i class="fab fa-pix text-blue-400"></i> Pagamento via PIX</h2>
                     <div class="bg-black/40 rounded-2xl p-4 text-center">
@@ -77,14 +97,14 @@
                     </div>
                     <hr class="border-white/10 my-4">
                     <button id="shareWhatsAppBtn" class="bg-green-700/80 hover:bg-green-600 w-full py-2.5 rounded-xl"><i class="fab fa-whatsapp text-xl"></i> Compartilhar Bolão</button>
-                    <p class="text-[11px] text-center text-gray-400 mt-3">📲 Administrador: <strong class="text-yellow-300">12988461978</strong> (recebe apostas e define resultado)</p>
+                    <p class="text-[11px] text-center text-gray-400 mt-3">📲 Administrador: <strong class="text-yellow-300">12988461978</strong></p>
                 </div>
             </div>
 
             <!-- COLUNA DIREITA (2 colunas) -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Resultado Oficial -->
-                <div class="glass-card p-5">
+                <!-- Resultado Oficial (admin only) -->
+                <div id="adminResultPanel" class="glass-card p-5 admin-only">
                     <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-flag-checkered"></i> Resultado Oficial</h2>
                     <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-black/30 rounded-2xl p-4 mt-2">
                         <div class="flex items-center gap-4 text-2xl font-black">
@@ -98,20 +118,20 @@
                     </div>
                 </div>
 
-                <!-- Apostar via WhatsApp (jogador) -->
+                <!-- Apostar via WhatsApp (JOGADOR) -->
                 <div class="glass-card p-5">
                     <h2 class="text-xl font-bold flex items-center gap-2"><i class="fab fa-whatsapp text-green-400"></i> Apostar agora</h2>
                     <div class="bg-yellow-500/10 rounded-xl p-5 text-center border border-yellow-500/30">
                         <i class="fab fa-whatsapp text-5xl text-green-500 mb-2"></i>
-                        <p class="text-sm mb-3">Clique no botão, informe seu nome e o placar. Você será redirecionado ao WhatsApp para enviar a aposta + comprovante para o administrador <strong class="text-yellow-300">12988461978</strong>. Ele registrará manualmente.</p>
+                        <p class="text-sm mb-3">Clique no botão, informe seu <strong>nome</strong> e o <strong>placar</strong> que deseja apostar. Você será redirecionado ao WhatsApp do administrador <strong class="text-yellow-300">12988461978</strong>. Envie a mensagem gerada e também o comprovante do PIX. Após a confirmação, o administrador registrará sua aposta e seu nome aparecerá no ranking.</p>
                         <button id="whatsappBetBtn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-xl inline-flex items-center gap-3"><i class="fab fa-whatsapp text-2xl"></i> Enviar Aposta via WhatsApp</button>
                     </div>
                 </div>
 
-                <!-- Registro Manual (Admin) -->
-                <div class="glass-card p-5 admin-badge">
+                <!-- Registro Manual (Admin only) -->
+                <div id="adminManualPanel" class="glass-card p-5 admin-badge admin-only">
                     <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-pen-alt"></i> Registro Manual (Admin)</h2>
-                    <p class="text-xs text-amber-300 mb-2">Use esta área para registrar apostas recebidas via WhatsApp após confirmação do PIX.</p>
+                    <p class="text-xs text-amber-300 mb-2">Use esta área após receber a aposta e comprovante via WhatsApp.</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                         <div>
                             <label class="text-sm">Apostador</label>
@@ -133,15 +153,16 @@
                     </div>
                 </div>
 
-                <!-- Lista de apostas do selecionado -->
+                <!-- Lista de apostas do selecionado (visível para todos, apenas leitura) -->
                 <div class="glass-card p-5">
                     <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-list-ul"></i> Apostas de: <span id="selectedUserName" class="text-yellow-300">—</span></h2>
                     <div id="betsContainer" class="space-y-3 mt-2"></div>
+                    <p class="text-xs text-gray-400 mt-2 text-center">* Somente administrador pode remover apostas.</p>
                 </div>
 
-                <!-- Ranking -->
+                <!-- Ranking (visível para todos) -->
                 <div class="glass-card p-5">
-                    <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-trophy text-yellow-400"></i> Ranking</h2>
+                    <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-trophy text-yellow-400"></i> Ranking dos Apostadores</h2>
                     <div id="rankingTable" class="overflow-x-auto mt-2"></div>
                 </div>
             </div>
@@ -153,9 +174,11 @@
         let officialResult = { home: null, away: null };
         let participants = [];
         let selectedParticipantId = null;
-        const ADMIN_PHONE = "5512988461978";  // Número do administrador: 12988461978
+        let isAdmin = false;
+        const ADMIN_PHONE = "5512988461978"; // Número do administrador
+        const ADMIN_PASSWORD = "admin123";
 
-        // ---------- PERSISTÊNCIA LOCALSTORAGE ----------
+        // ---------- PERSISTÊNCIA ----------
         function saveToLocalStorage() {
             try {
                 const data = { participants, selectedId: selectedParticipantId, officialResult };
@@ -165,7 +188,6 @@
                 return true;
             } catch(e) {
                 console.error("Erro ao salvar:", e);
-                alert("⚠️ Seu navegador está bloqueando o salvamento local. Os dados serão perdidos ao atualizar.");
                 return false;
             }
         }
@@ -185,16 +207,14 @@
                 }
                 selectedParticipantId = data.selectedId || (participants[0]?.id || null);
                 officialResult = data.officialResult || { home: null, away: null };
-                // Limpeza de segurança
                 participants.forEach(p => {
                     if (!p.bets) p.bets = [];
                     if (p.bets.length > 2) p.bets = p.bets.slice(0,2);
                     p.bets = p.bets.filter((bet, idx, self) => idx === self.findIndex(b => b.home === bet.home && b.away === bet.away));
                 });
                 if (participants.length === 0) initDemoData();
-                saveToLocalStorage(); // re-salva para garantir estrutura limpa
+                saveToLocalStorage();
             } catch(e) {
-                console.warn("Erro no carregamento, resetando demo", e);
                 initDemoData();
             }
         }
@@ -210,7 +230,7 @@
             saveToLocalStorage();
         }
 
-        // ---------- LÓGICA DE PONTUAÇÃO ----------
+        // ---------- PONTUAÇÃO ----------
         function calculatePoints(p) {
             if (officialResult.home === null || officialResult.away === null) return 0;
             let pts = 0;
@@ -225,9 +245,9 @@
                 .sort((a,b) => b.points - a.points);
         }
 
-        // ---------- RENDERIZAÇÃO COMPLETA DA INTERFACE ----------
+        // ---------- RENDERIZAÇÃO ----------
         function renderAll() {
-            // Select principal
+            // Select principal (admin)
             const select = document.getElementById("participantSelect");
             if (select) {
                 select.innerHTML = "";
@@ -240,7 +260,7 @@
                 });
                 if (participants.length === 0) select.innerHTML = '<option disabled>Nenhum apostador</option>';
             }
-            // Select manual
+            // Select manual (admin)
             const manualSelect = document.getElementById("manualParticipantSelect");
             if (manualSelect) {
                 manualSelect.innerHTML = '<option value="">-- Selecione um apostador --</option>';
@@ -251,12 +271,12 @@
                     manualSelect.appendChild(opt);
                 });
             }
-            // Nome e apostas do selecionado
+            // Nome e apostas do selecionado (para todos)
             const nameSpan = document.getElementById("selectedUserName");
             const container = document.getElementById("betsContainer");
             if (!selectedParticipantId || participants.length === 0) {
                 nameSpan.innerText = "—";
-                if (container) container.innerHTML = '<div class="text-center text-gray-400 py-4">Selecione um apostador</div>';
+                if (container) container.innerHTML = '<div class="text-center text-gray-400 py-4">Selecione um apostador no menu acima (modo admin)</div>';
             } else {
                 const part = participants.find(p => p.id === selectedParticipantId);
                 if (part) {
@@ -273,20 +293,22 @@
                                     <div class="flex items-center gap-2 bg-black/30 px-3 py-1 rounded-full">
                                         <span>🇧🇷 ${bet.home}</span> <span class="text-yellow-400">x</span> <span>${bet.away} 🇭🇹</span>
                                     </div>
-                                    <button data-betindex="${idx}" class="removeBetBtn bg-red-700/60 hover:bg-red-600 px-3 py-1 rounded-lg text-sm"><i class="fas fa-trash"></i></button>
+                                    ${isAdmin ? `<button data-betindex="${idx}" class="removeBetBtn bg-red-700/60 hover:bg-red-600 px-3 py-1 rounded-lg text-sm"><i class="fas fa-trash"></i></button>` : '<span class="text-xs text-gray-500"><i class="fas fa-check-circle text-green-500"></i> Válida</span>'}
                                 `;
                                 container.appendChild(div);
                             });
-                            document.querySelectorAll(".removeBetBtn").forEach(btn => {
-                                btn.addEventListener("click", (e) => {
-                                    const idx = parseInt(btn.getAttribute("data-betindex"));
-                                    if (!isNaN(idx) && part) {
-                                        part.bets.splice(idx, 1);
-                                        saveToLocalStorage();
-                                        renderAll();
-                                    }
+                            if (isAdmin) {
+                                document.querySelectorAll(".removeBetBtn").forEach(btn => {
+                                    btn.addEventListener("click", (e) => {
+                                        const idx = parseInt(btn.getAttribute("data-betindex"));
+                                        if (!isNaN(idx) && part) {
+                                            part.bets.splice(idx, 1);
+                                            saveToLocalStorage();
+                                            renderAll();
+                                        }
+                                    });
                                 });
-                            });
+                            }
                         }
                     }
                 } else { nameSpan.innerText = "—"; }
@@ -304,7 +326,7 @@
                         <td><i class="fas fa-user-circle"></i> ${r.name}</td>
                         <td class="text-center">${r.betsCount}/2</td>
                         <td class="text-right font-bold text-yellow-300">${r.points}</td>
-                     </tr>`;
+                    </tr>`;
                 });
                 html += `</tbody></table>`;
                 rankDiv.innerHTML = html;
@@ -313,7 +335,9 @@
             document.getElementById("officialHomeGoals").value = (officialResult.home !== null ? officialResult.home : "");
             document.getElementById("officialAwayGoals").value = (officialResult.away !== null ? officialResult.away : "");
             // Contador
-            document.getElementById("participantCount").innerText = `${participants.length} salvos`;
+            if (document.getElementById("participantCount")) {
+                document.getElementById("participantCount").innerText = `${participants.length} salvos`;
+            }
         }
 
         // ---------- AÇÕES DO ADMIN ----------
@@ -383,7 +407,7 @@
             alert(`🏆 Resultado oficial definido: Brasil ${h} x ${a} Haiti. Pontuação atualizada!`);
         }
 
-        // ---------- FLUXO DO JOGADOR (WHATSAPP) ----------
+        // ---------- ENVIO DE APOSTA (JOGADOR) ----------
         function sendWhatsAppBet() {
             let nome = prompt("Digite seu NOME completo (como deseja aparecer no bolão):", "");
             if (!nome || !nome.trim()) nome = "Apostador";
@@ -395,11 +419,10 @@
             if (isNaN(home) || isNaN(away)) { alert("Placar inválido. Use números."); return; }
             if (home < 0 || away < 0) { alert("Os gols não podem ser negativos."); return; }
             
-            // Mensagem formatada para o administrador (12988461978)
             const message = `*NOVA APOSTA - BOLÃO DA BILA*%0A%0A👤 *Apostador:* ${nome}%0A⚽ *Placar:* Brasil ${home} x ${away} Haiti%0A💰 *Valor:* R$ 25,00 (cada aposta)%0A📌 *Status:* Aguardando pagamento e registro%0A%0A🔹 Enviar comprovante do PIX (chave 12988461978) para confirmar.`;
             const whatsappUrl = `https://wa.me/${ADMIN_PHONE}?text=${message}`;
             window.open(whatsappUrl, "_blank");
-            alert(`📱 Você será redirecionado ao WhatsApp do administrador (12988461978). Envie a mensagem (já preenchida) e o comprovante do PIX. O administrador registrará sua aposta manualmente.`);
+            alert(`📱 Você será redirecionado ao WhatsApp do administrador (12988461978). Envie a mensagem (já preenchida) e o comprovante do PIX. O administrador registrará sua aposta manualmente e seu nome aparecerá no ranking.`);
         }
 
         // ---------- UTILITÁRIOS ----------
@@ -413,19 +436,75 @@
             window.open(`https://wa.me/?text=${text}%20${url}`, "_blank");
         }
 
-        // ---------- EVENT LISTENERS ----------
+        // ---------- ADMIN AUTH ----------
+        function showAdminModal() {
+            document.getElementById("adminModal").classList.remove("hidden");
+        }
+        function hideAdminModal() {
+            document.getElementById("adminModal").classList.add("hidden");
+        }
+        function loginAdmin() {
+            const pwd = document.getElementById("adminPassword").value;
+            if (pwd === ADMIN_PASSWORD) {
+                isAdmin = true;
+                hideAdminModal();
+                // Mostrar todos os painéis de admin
+                document.querySelectorAll(".admin-only").forEach(el => el.classList.remove("admin-only"));
+                document.querySelectorAll(".admin-only").forEach(el => el.style.display = "block");
+                // Atualizar botão
+                const btn = document.getElementById("toggleAdminBtn");
+                btn.innerHTML = '<i class="fas fa-lock-open"></i> Modo Admin (Ativo)';
+                btn.classList.add("bg-yellow-700");
+                renderAll(); // re-render para mostrar botões de remover apostas
+                alert("Modo administrador ativado. Agora você pode gerenciar apostadores, registrar apostas e definir o resultado.");
+            } else {
+                alert("Senha incorreta. Acesso negado.");
+            }
+            document.getElementById("adminPassword").value = "";
+        }
+
+        // Eventos de autenticação
+        document.getElementById("toggleAdminBtn")?.addEventListener("click", () => {
+            if (isAdmin) {
+                // Deslogar? Opcional: se quiser desativar, mas melhor manter até recarregar a página
+                alert("Você já está no modo administrador. Para desativar, recarregue a página.");
+            } else {
+                showAdminModal();
+            }
+        });
+        document.getElementById("adminLoginBtn")?.addEventListener("click", loginAdmin);
+        document.getElementById("adminModalClose")?.addEventListener("click", hideAdminModal);
+        document.getElementById("adminModal")?.addEventListener("click", (e) => {
+            if (e.target === document.getElementById("adminModal")) hideAdminModal();
+        });
+
+        // ---------- EVENTOS DEMAIS ----------
         document.getElementById("addParticipantBtn")?.addEventListener("click", () => {
+            if (!isAdmin) { alert("Apenas administrador pode adicionar apostadores."); return; }
             const inp = document.getElementById("newParticipantName");
             addParticipant(inp.value);
             inp.value = "";
         });
-        document.getElementById("deleteParticipantBtn")?.addEventListener("click", deleteSelected);
-        document.getElementById("resetDemoBtn")?.addEventListener("click", resetDemo);
+        document.getElementById("deleteParticipantBtn")?.addEventListener("click", () => {
+            if (!isAdmin) { alert("Apenas administrador pode remover apostadores."); return; }
+            deleteSelected();
+        });
+        document.getElementById("resetDemoBtn")?.addEventListener("click", () => {
+            if (!isAdmin) { alert("Apenas administrador pode restaurar a demo."); return; }
+            resetDemo();
+        });
         document.getElementById("forceSaveBtn")?.addEventListener("click", () => { saveToLocalStorage(); alert("Dados salvos manualmente!"); });
-        document.getElementById("setOfficialResultBtn")?.addEventListener("click", setOfficialResult);
+        document.getElementById("setOfficialResultBtn")?.addEventListener("click", () => {
+            if (!isAdmin) { alert("Apenas administrador pode definir o resultado."); return; }
+            setOfficialResult();
+        });
         document.getElementById("whatsappBetBtn")?.addEventListener("click", sendWhatsAppBet);
-        document.getElementById("addManualBetBtn")?.addEventListener("click", addManualBet);
+        document.getElementById("addManualBetBtn")?.addEventListener("click", () => {
+            if (!isAdmin) { alert("Apenas administrador pode registrar apostas manualmente."); return; }
+            addManualBet();
+        });
         document.getElementById("quickAddParticipantBtn")?.addEventListener("click", () => {
+            if (!isAdmin) { alert("Apenas administrador pode criar apostadores."); return; }
             const name = document.getElementById("newManualName").value.trim();
             if (name) addParticipant(name);
             else alert("Digite um nome");
@@ -442,6 +521,13 @@
         // Inicialização
         loadFromLocalStorage();
         renderAll();
+        // Esconder painéis admin inicialmente (caso não autenticado)
+        if (!isAdmin) {
+            document.querySelectorAll(".admin-only").forEach(el => {
+                el.classList.add("admin-only");
+                el.style.display = "none";
+            });
+        }
     </script>
 </body>
 </html>
