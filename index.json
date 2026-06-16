@@ -1,7 +1,21 @@
+
 {
-  "apostas": [
-    { "nome": "João", "home": 2, "away": 0, "confirmed": true },
-    { "nome": "Maria", "home": 1, "away": 0, "confirmed": false }
+  "participants": [
+    {
+      "id": "p1",
+      "name": "Carlão do PIX",
+      "bets": [
+        { "home": 2, "away": 0 },
+        { "home": 3, "away": 1 }
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "Marta Boleira",
+      "bets": [
+        { "home": 1, "away": 0 }
+      ]
+    }
   ],
-  "resultado": { "home": null, "away": null }
+  "officialResult": { "home": null, "away": null }
 }
