@@ -41,6 +41,9 @@
             </div>
         </div>
 
+        <!-- Status de carregamento -->
+        <div id="statusMsg" class="text-center mb-4 text-sm"></div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-7">
             <!-- COLUNA ESQUERDA -->
             <div class="lg:col-span-1 space-y-6">
@@ -100,7 +103,7 @@
             </div>
         </div>
 
-        <!-- PAINEL ADMIN (oculto inicialmente) -->
+        <!-- PAINEL ADMIN -->
         <div id="adminPanel" class="glass-card p-5 mt-6 admin-panel">
             <h2 class="text-xl font-bold border-b border-yellow-600/40 pb-2 mb-4"><i class="fas fa-users-cog"></i> Gerenciar apostas (Admin)</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -127,49 +130,73 @@
                 </label>
                 <button id="resetDemo" class="bg-gray-700/60 hover:bg-gray-700 px-4 py-2 rounded-xl text-sm"><i class="fas fa-history"></i> Restaurar exemplo</button>
             </div>
-            <p class="text-xs text-gray-400 mt-3">⚠️ As alterações são salvas automaticamente no navegador. Use "Exportar JSON" para fazer backup.</p>
+            <p class="text-xs text-gray-400 mt-3">⚠️ As alterações só serão permanentes após <strong>exportar o JSON e substituir o arquivo no GitHub</strong>. Assim todos os usuários verão os dados atualizados.</p>
         </div>
     </div>
 
     <script>
-        // ---------- DADOS INICIAIS (já com alguns nomes para aparecerem) ----------
-        let participants = [
-            { id: "p1", name: "Carlão do PIX", bets: [{ home: 2, away: 0 }, { home: 3, away: 1 }] },
-            { id: "p2", name: "Marta Boleira", bets: [{ home: 1, away: 0 }] },
-            { id: "p3", name: "Ronaldo Fenômeno", bets: [{ home: 4, away: 1 }, { home: 2, away: 2 }] }
-        ];
+        // ---------- CONFIGURAÇÕES ----------
+        let participants = [];      // { id, name, bets: [{home, away}] }
         let officialResult = { home: null, away: null };
-        let selectedId = "p1";
+        let selectedId = null;
         let isAdmin = false;
 
-        const ADMIN_PHONE = "5512988461978"; // 12988461978
+        const ADMIN_PHONE = "5512988461978";
+        const JSON_URL = "https://raw.githubusercontent.com/vendemais-sjc/BOL-ODABILA/refs/heads/main/index.json";
 
-        // ---------- SALVAR E CARREGAR DO LOCALSTORAGE ----------
-        function salvarDados() {
-            const dados = { participants, officialResult, selectedId };
-            localStorage.setItem("bolaodabila", JSON.stringify(dados));
+        // ---------- CARREGAR DO GITHUB JSON ----------
+        async function carregarDoGitHub() {
+            const statusDiv = document.getElementById("statusMsg");
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Carregando apostas do GitHub...';
+            try {
+                const resp = await fetch(JSON_URL);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                // Estrutura: { apostas: [{nome, home, away, confirmed}], resultado: {home, away} }
+                const apostasMap = new Map();
+                if (data.apostas && Array.isArray(data.apostas)) {
+                    data.apostas.forEach(a => {
+                        if (a.confirmed === true) {
+                            if (!apostasMap.has(a.nome)) apostasMap.set(a.nome, []);
+                            apostasMap.get(a.nome).push({ home: a.home, away: a.away });
+                        }
+                    });
+                }
+                const novosParticipantes = [];
+                let id = 1;
+                for (let [nome, bets] of apostasMap.entries()) {
+                    novosParticipantes.push({ id: `p${id++}`, name: nome, bets: bets.slice(0,2) });
+                }
+                if (novosParticipantes.length > 0) {
+                    participants = novosParticipantes;
+                } else {
+                    // Se o JSON não tiver apostas confirmadas, mantém a lista existente (ou padrão)
+                    if (participants.length === 0) carregarExemplo();
+                }
+                if (data.resultado) {
+                    officialResult = { home: data.resultado.home, away: data.resultado.away };
+                }
+                selectedId = participants[0]?.id || null;
+                statusDiv.innerHTML = '<span class="text-green-300">✅ Dados carregados do GitHub!</span>';
+                setTimeout(() => statusDiv.innerHTML = '', 3000);
+                renderizarTudo();
+                if (isAdmin) preencherSelectAdmin();
+            } catch (err) {
+                console.error(err);
+                statusDiv.innerHTML = `<span class="text-red-300">⚠️ Erro ao carregar do GitHub: ${err.message}. Usando dados locais.</span>`;
+                if (participants.length === 0) carregarExemplo();
+                renderizarTudo();
+            }
         }
 
-        function carregarDados() {
-            const raw = localStorage.getItem("bolaodabila");
-            if (raw) {
-                try {
-                    const dados = JSON.parse(raw);
-                    participants = dados.participants || [];
-                    officialResult = dados.officialResult || { home: null, away: null };
-                    selectedId = dados.selectedId || (participants[0]?.id || null);
-                } catch(e) { console.error(e); }
-            }
-            // Se não houver dados no localStorage, mantém os dados iniciais
-            if (!participants.length) {
-                participants = [
-                    { id: "p1", name: "Carlão do PIX", bets: [{ home: 2, away: 0 }, { home: 3, away: 1 }] },
-                    { id: "p2", name: "Marta Boleira", bets: [{ home: 1, away: 0 }] },
-                    { id: "p3", name: "Ronaldo Fenômeno", bets: [{ home: 4, away: 1 }, { home: 2, away: 2 }] }
-                ];
-                selectedId = "p1";
-            }
-            renderizarTudo();
+        function carregarExemplo() {
+            participants = [
+                { id: "p1", name: "Carlão do PIX", bets: [{ home: 2, away: 0 }, { home: 3, away: 1 }] },
+                { id: "p2", name: "Marta Boleira", bets: [{ home: 1, away: 0 }] },
+                { id: "p3", name: "Ronaldo Fenômeno", bets: [{ home: 4, away: 1 }, { home: 2, away: 2 }] }
+            ];
+            officialResult = { home: null, away: null };
+            selectedId = "p1";
         }
 
         // ---------- FUNÇÕES DE RENDERIZAÇÃO ----------
@@ -265,7 +292,7 @@
             }
         }
 
-        // ---------- AÇÕES DO ADMIN ----------
+        // ---------- ADMIN: adicionar/remover apostas (altera a lista local) ----------
         function adicionarAposta() {
             const nome = document.getElementById("adminNome").value.trim();
             const home = parseInt(document.getElementById("adminHome").value);
@@ -286,10 +313,9 @@
             document.getElementById("adminNome").value = "";
             document.getElementById("adminHome").value = "";
             document.getElementById("adminAway").value = "";
-            salvarDados();
             renderizarTudo();
             preencherSelectAdmin();
-            alert(`✅ Aposta de ${nome} (${home}x${away}) adicionada.`);
+            alert(`✅ Aposta adicionada localmente. LEMBRE-SE: exporte o JSON e substitua no GitHub para todos verem.`);
         }
 
         function removerApostador() {
@@ -299,10 +325,9 @@
             if (confirm("Remover este apostador e todas as suas apostas?")) {
                 participants = participants.filter(p => p.id !== id);
                 if (selectedId === id) selectedId = participants[0]?.id || null;
-                salvarDados();
                 renderizarTudo();
                 preencherSelectAdmin();
-                alert("Removido.");
+                alert("Removido localmente. Exporte JSON para salvar.");
             }
         }
 
@@ -316,10 +341,9 @@
             const away = parseInt(document.getElementById("inputAway").value);
             if (isNaN(home) || isNaN(away)) { alert("Preencha os dois campos."); return; }
             officialResult = { home, away };
-            salvarDados();
             renderizarTudo();
             document.getElementById("adminResultArea").classList.add("hidden");
-            alert(`Resultado definido: Brasil ${home} x ${away} Haiti.`);
+            alert(`Resultado definido localmente: Brasil ${home} x ${away} Haiti. Exporte JSON para atualizar no GitHub.`);
         }
 
         // ---------- EXPORTAR / IMPORTAR JSON ----------
@@ -338,7 +362,7 @@
             a.download = "index.json";
             a.click();
             URL.revokeObjectURL(a.href);
-            alert("JSON exportado! Use como backup ou substitua no GitHub.");
+            alert("JSON exportado! Agora FAÇA UPLOAD deste arquivo no seu repositório GitHub (substitua o index.json). Após o upload, todos os usuários verão os dados atualizados.");
         }
 
         function importarJSON(file) {
@@ -346,31 +370,26 @@
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    const map = new Map();
+                    const apostasMap = new Map();
                     if (data.apostas) {
                         data.apostas.forEach(a => {
                             if (a.confirmed === true) {
-                                if (!map.has(a.nome)) map.set(a.nome, []);
-                                map.get(a.nome).push({ home: a.home, away: a.away });
+                                if (!apostasMap.has(a.nome)) apostasMap.set(a.nome, []);
+                                apostasMap.get(a.nome).push({ home: a.home, away: a.away });
                             }
                         });
                     }
-                    const novosParticipantes = [];
+                    const novos = [];
                     let idx = 1;
-                    for (let [nome, bets] of map.entries()) {
-                        novosParticipantes.push({ id: `p${idx++}`, name: nome, bets: bets.slice(0,2) });
+                    for (let [nome, bets] of apostasMap.entries()) {
+                        novos.push({ id: `p${idx++}`, name: nome, bets: bets.slice(0,2) });
                     }
-                    if (novosParticipantes.length) participants = novosParticipantes;
+                    if (novos.length) participants = novos;
                     if (data.resultado) officialResult = { home: data.resultado.home, away: data.resultado.away };
-                    if (participants.length === 0) {
-                        alert("Nenhuma aposta confirmada no JSON importado.");
-                        return;
-                    }
                     selectedId = participants[0]?.id || null;
-                    salvarDados();
                     renderizarTudo();
                     preencherSelectAdmin();
-                    alert("JSON importado com sucesso!");
+                    alert("JSON importado com sucesso! Lembre-se de exportar e subir para o GitHub se quiser persistir.");
                 } catch (err) {
                     alert("Erro ao ler JSON: " + err.message);
                 }
@@ -380,21 +399,14 @@
 
         function restaurarExemplo() {
             if (confirm("Restaurar dados de exemplo? Isso vai substituir as apostas atuais.")) {
-                participants = [
-                    { id: "p1", name: "Carlão do PIX", bets: [{ home: 2, away: 0 }, { home: 3, away: 1 }] },
-                    { id: "p2", name: "Marta Boleira", bets: [{ home: 1, away: 0 }] },
-                    { id: "p3", name: "Ronaldo Fenômeno", bets: [{ home: 4, away: 1 }, { home: 2, away: 2 }] }
-                ];
-                officialResult = { home: null, away: null };
-                selectedId = "p1";
-                salvarDados();
+                carregarExemplo();
                 renderizarTudo();
                 preencherSelectAdmin();
-                alert("Dados de exemplo restaurados.");
+                alert("Dados de exemplo restaurados localmente. Exporte JSON se quiser salvar.");
             }
         }
 
-        // ---------- WHATSAPP (jogador) ----------
+        // ---------- WHATSAPP ----------
         function enviarWhatsApp() {
             let nome = prompt("Digite seu NOME completo:", "");
             if (!nome || !nome.trim()) nome = "Apostador";
@@ -420,14 +432,14 @@
             window.open(`https://wa.me/?text=${encodeURIComponent("⚽ BOLÃO DA BILA - Brasil x Haiti ⚽\nAposte no placar exato! Acesse: " + window.location.href)}`, "_blank");
         }
 
-        // ---------- AUTENTICAÇÃO ADMIN (botão flutuante) ----------
+        // ---------- ADMIN AUTH ----------
         function mostrarModalAdmin() {
             const senha = prompt("Digite a senha de administrador:");
             if (senha === "admin123") {
                 isAdmin = true;
                 document.getElementById("adminPanel").style.display = "block";
                 preencherSelectAdmin();
-                alert("Modo administrador ativado. Agora você pode gerenciar apostas.");
+                alert("Modo administrador ativado. Você pode gerenciar apostas. Lembre-se: após alterar, exporte o JSON e suba para o GitHub.");
             } else if (senha !== null) {
                 alert("Senha incorreta.");
             }
@@ -449,19 +461,17 @@
         document.getElementById("resetDemo").addEventListener("click", restaurarExemplo);
         document.getElementById("selectApostador").addEventListener("change", (e) => {
             selectedId = e.target.value;
-            salvarDados();
             renderizarTudo();
         });
 
-        // Botão flutuante Admin
         const adminBtn = document.createElement("button");
         adminBtn.innerHTML = '<i class="fas fa-lock"></i> Admin';
         adminBtn.className = "fixed bottom-4 right-4 bg-gray-800/80 hover:bg-gray-700 px-3 py-2 rounded-full text-sm z-50";
         adminBtn.onclick = mostrarModalAdmin;
         document.body.appendChild(adminBtn);
 
-        // Inicialização
-        carregarDados();
+        // Inicialização: primeiro carrega do GitHub, se falhar usa localStorage/exemplo
+        carregarDoGitHub();
     </script>
 </body>
 </html>
