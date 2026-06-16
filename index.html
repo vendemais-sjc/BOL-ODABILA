@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Bolão da Bila | Brasil x Haiti - Placar Exato</title>
+    <title>Bolão da Bila | Brasil x Haiti</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Inter', sans-serif; }
         body { background: radial-gradient(circle at 10% 20%, #0a1f1e, #041c1a); min-height: 100vh; }
@@ -15,114 +14,85 @@
             backdrop-filter: blur(14px);
             border-radius: 2rem;
             border: 1px solid rgba(255, 215, 0, 0.25);
-            box-shadow: 0 20px 35px -12px black;
         }
         .btn-gold {
             background: linear-gradient(105deg, #f5b042, #e07c1f);
             transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px #f5b04280; }
+        .btn-gold:hover { transform: translateY(-2px); }
         .bet-card { background: rgba(0, 0, 0, 0.45); border-left: 4px solid #f5b042; }
-        .number-input { -moz-appearance: textfield; }
         .admin-only { display: none; }
     </style>
 </head>
 <body class="text-white p-4 md:p-6">
     <div class="max-w-6xl mx-auto">
-        <!-- CABEÇALHO COM BOTÃO ADMIN -->
-        <div class="flex justify-between items-center mb-6 flex-wrap gap-2">
-            <div class="text-center flex-1">
-                <div class="inline-flex items-center gap-3 bg-black/40 backdrop-blur rounded-full px-6 py-2 mb-2 border border-yellow-600/40">
-                    <i class="fas fa-futbol text-yellow-500 text-xl animate-pulse"></i>
-                    <span class="text-sm font-bold tracking-widest text-yellow-300">BOLÃO DA BILA</span>
-                    <i class="fas fa-crown text-yellow-500 text-xl"></i>
-                </div>
-                <h1 class="text-5xl md:text-6xl font-black bg-gradient-to-r from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">BRASIL x HAITI</h1>
-                <p class="text-gray-200 text-lg mt-2 font-medium">⚽ PLACAR EXATO · APENAS 2 APOSTAS POR PARTICIPANTE ⚽</p>
-                <div class="mt-3 flex justify-center gap-3 flex-wrap">
-                    <span class="bg-black/50 text-amber-300 text-sm px-4 py-1.5 rounded-full"><i class="fas fa-tag"></i> Cada aposta: R$ 25,00</span>
-                    <span class="bg-black/50 text-amber-300 text-sm px-4 py-1.5 rounded-full"><i class="fas fa-chart-line"></i> Pontuação: placar exato = 5 pontos</span>
-                </div>
+        <!-- CABEÇALHO -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-3 bg-black/40 backdrop-blur rounded-full px-6 py-2 mb-4 border border-yellow-600/40">
+                <i class="fas fa-futbol text-yellow-500"></i>
+                <span class="text-sm font-bold text-yellow-300">BOLÃO DA BILA</span>
+                <i class="fas fa-crown text-yellow-500"></i>
             </div>
-            <button id="toggleAdminBtn" class="bg-gray-800/80 hover:bg-gray-700 px-4 py-2 rounded-xl flex items-center gap-2 text-sm"><i class="fas fa-lock"></i> Modo Admin</button>
-        </div>
-
-        <!-- MODAL DE SENHA -->
-        <div id="adminModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-            <div class="glass-card p-6 w-96">
-                <h3 class="text-xl font-bold mb-4"><i class="fas fa-shield-alt"></i> Acesso Administrador</h3>
-                <input type="password" id="adminPassword" placeholder="Digite a senha" class="w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-2 mb-4 text-white">
-                <div class="flex gap-3">
-                    <button id="adminLoginBtn" class="btn-gold flex-1 py-2 rounded-xl font-bold">Entrar</button>
-                    <button id="adminModalClose" class="bg-gray-700 flex-1 py-2 rounded-xl">Cancelar</button>
-                </div>
-                <p class="text-xs text-gray-400 mt-3">Senha padrão: <strong class="text-yellow-300">admin123</strong></p>
+            <h1 class="text-5xl md:text-6xl font-black bg-gradient-to-r from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent">BRASIL x HAITI</h1>
+            <p class="text-gray-200 text-lg mt-2">⚽ PLACAR EXATO · 2 APOSTAS POR PESSOA ⚽</p>
+            <div class="mt-3 flex justify-center gap-3 flex-wrap">
+                <span class="bg-black/50 text-amber-300 text-sm px-4 py-1.5 rounded-full"><i class="fas fa-tag"></i> R$ 25,00 por aposta</span>
+                <span class="bg-black/50 text-amber-300 text-sm px-4 py-1.5 rounded-full"><i class="fas fa-chart-line"></i> Acertou placar = 5 pontos</span>
             </div>
         </div>
 
-        <!-- MENSAGEM DE STATUS DO JSON -->
-        <div id="statusMessage" class="text-center mb-4 text-sm"></div>
+        <!-- Status do JSON -->
+        <div id="statusMsg" class="text-center mb-4 text-sm"></div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-7">
-            <!-- COLUNA ESQUERDA: Informações e PIX -->
+            <!-- COLUNA ESQUERDA -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="glass-card p-5">
-                    <h2 class="text-xl font-bold flex items-center gap-2 mb-3"><i class="fab fa-whatsapp text-green-400"></i> Como apostar</h2>
-                    <p class="text-sm mb-4">Clique no botão abaixo, informe seu <strong>nome</strong> e o <strong>placar</strong>. Você será redirecionado ao WhatsApp do administrador. Envie a mensagem + comprovante do PIX. Após confirmação, ele atualizará o arquivo <strong>JSON</strong> e sua aposta aparecerá aqui para todos.</p>
-                    <button id="whatsappBetBtn" class="bg-green-600 hover:bg-green-500 w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2"><i class="fab fa-whatsapp text-xl"></i> Enviar Aposta via WhatsApp</button>
+                    <h2 class="text-xl font-bold flex items-center gap-2 mb-3"><i class="fab fa-whatsapp text-green-400"></i> Apostar agora</h2>
+                    <button id="btnWhatsapp" class="bg-green-600 hover:bg-green-500 w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2"><i class="fab fa-whatsapp text-xl"></i> Enviar aposta via WhatsApp</button>
+                    <p class="text-xs text-gray-400 mt-3">Você informa nome e placar, a mensagem vai direto para o organizador <strong class="text-yellow-300">12988461978</strong>.</p>
                 </div>
 
                 <div class="glass-card p-5">
                     <h2 class="text-xl font-bold flex items-center gap-2"><i class="fab fa-pix text-blue-400"></i> Pagamento</h2>
                     <div class="bg-black/40 rounded-2xl p-4 text-center mt-2">
                         <p class="text-sm font-mono bg-gray-800/70 p-2 rounded-xl">Chave PIX: <strong class="text-yellow-300">12988461978</strong></p>
-                        <button id="copyPixBtn" class="bg-amber-700/70 hover:bg-amber-600 w-full py-2 rounded-xl text-sm mt-2"><i class="fas fa-copy"></i> Copiar chave</button>
+                        <button id="copyPix" class="bg-amber-700/70 hover:bg-amber-600 w-full py-2 rounded-xl text-sm mt-2"><i class="fas fa-copy"></i> Copiar chave</button>
                     </div>
                     <hr class="border-white/10 my-4">
-                    <button id="shareWhatsAppBtn" class="bg-green-700/80 hover:bg-green-600 w-full py-2.5 rounded-xl"><i class="fab fa-whatsapp text-xl"></i> Compartilhar Bolão</button>
-                    <p class="text-[11px] text-center text-gray-400 mt-3">📲 Administrador: <strong class="text-yellow-300">12988461978</strong></p>
-                    <p class="text-[11px] text-center text-gray-400 mt-2">🔧 Dados vindos do <strong>index.json</strong> (GitHub). Use o modo Admin para gerenciar apostas.</p>
+                    <button id="shareBolao" class="bg-green-700/80 hover:bg-green-600 w-full py-2.5 rounded-xl"><i class="fab fa-whatsapp text-xl"></i> Compartilhar bolão</button>
                 </div>
             </div>
 
             <!-- COLUNA DIREITA -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Resultado Oficial -->
+                <!-- Resultado oficial -->
                 <div class="glass-card p-5">
-                    <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-flag-checkered"></i> Resultado Oficial</h2>
-                    <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-black/30 rounded-2xl p-4 mt-2">
-                        <div class="flex items-center gap-4 text-2xl font-black">
-                            <span>🇧🇷</span>
-                            <span id="resultHomeDisplay" class="text-yellow-300 text-4xl font-bold">?</span>
-                            <span class="text-yellow-500">x</span>
-                            <span id="resultAwayDisplay" class="text-yellow-300 text-4xl font-bold">?</span>
-                            <span>🇭🇹</span>
-                        </div>
-                        <button id="setOfficialResultBtn" class="btn-gold px-6 py-2 rounded-xl font-bold text-black"><i class="fas fa-check-double"></i> Definir Placar (Admin)</button>
+                    <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-flag-checkered"></i> Resultado oficial</h2>
+                    <div class="flex justify-center items-center gap-4 text-3xl font-black mt-2">
+                        <span>🇧🇷</span>
+                        <span id="resHome" class="text-yellow-300 text-5xl">?</span>
+                        <span class="text-yellow-500">x</span>
+                        <span id="resAway" class="text-yellow-300 text-5xl">?</span>
+                        <span>🇭🇹</span>
                     </div>
-                    <!-- Área de administração do resultado (só aparece no modo admin) -->
-                    <div id="resultAdminArea" class="hidden mt-4 flex flex-col md:flex-row items-center justify-center gap-4">
-                        <div class="flex items-center gap-4 text-xl font-black">
-                            <input type="number" id="officialHomeGoals" placeholder="0" class="w-20 text-center bg-gray-800 border border-gray-600 rounded-xl py-2 text-2xl font-bold text-white number-input">
-                            <span class="text-yellow-500">x</span>
-                            <input type="number" id="officialAwayGoals" placeholder="0" class="w-20 text-center bg-gray-800 border border-gray-600 rounded-xl py-2 text-2xl font-bold text-white number-input">
-                        </div>
-                        <button id="confirmResultBtn" class="bg-blue-700/80 hover:bg-blue-600 px-6 py-2 rounded-xl text-sm font-bold">Salvar Resultado (local)</button>
+                    <button id="btnDefinirResultado" class="mt-3 btn-gold w-full py-2 rounded-xl font-bold text-black"><i class="fas fa-check-double"></i> Definir resultado (Admin)</button>
+                    <div id="adminResultArea" class="hidden mt-4 flex justify-center gap-3">
+                        <input type="number" id="inputHome" placeholder="0" class="w-20 text-center bg-gray-800 border border-gray-600 rounded-xl py-2 text-2xl">
+                        <span class="text-yellow-500">x</span>
+                        <input type="number" id="inputAway" placeholder="0" class="w-20 text-center bg-gray-800 border border-gray-600 rounded-xl py-2 text-2xl">
+                        <button id="confirmResult" class="bg-blue-700 px-4 py-2 rounded-xl">Salvar</button>
                     </div>
-                    <p class="text-xs text-center text-amber-300/80 mt-3"><i class="fas fa-info-circle"></i> Defina o resultado real do jogo para calcular a pontuação (5 pontos para placar exato).</p>
                 </div>
 
-                <!-- Lista de apostadores (visualização pública) -->
+                <!-- Lista de apostadores -->
                 <div class="glass-card p-5">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-users"></i> Apostadores</h2>
-                        <span id="participantCount" class="text-xs bg-amber-800/60 px-2 py-1 rounded-full">0</span>
+                        <h2 class="text-xl font-bold"><i class="fas fa-users"></i> Apostadores</h2>
+                        <span id="qtdApostadores" class="text-xs bg-amber-800/60 px-2 py-1 rounded-full">0</span>
                     </div>
-                    <select id="participantSelect" class="w-full bg-gray-900/80 border border-gray-600 rounded-xl px-4 py-2.5 mt-3 mb-3 text-white">
-                        <option>Carregando...</option>
-                    </select>
-                    <div id="betsContainer" class="space-y-3 mt-2"></div>
+                    <select id="selectApostador" class="w-full bg-gray-900/80 border border-gray-600 rounded-xl px-4 py-2 mt-3 mb-3"></select>
+                    <div id="apostasContainer" class="space-y-2"></div>
                 </div>
 
                 <!-- Ranking -->
@@ -133,429 +103,373 @@
             </div>
         </div>
 
-        <!-- PAINEL ADMIN (GERENCIAMENTO DE APOSTAS) - só aparece após login -->
+        <!-- PAINEL ADMIN (protegido por senha) -->
         <div id="adminPanel" class="glass-card p-5 mt-6 admin-only">
-            <h2 class="text-xl font-bold flex items-center gap-2 border-b border-yellow-600/40 pb-2 mb-4"><i class="fas fa-users-cog"></i> Gerenciar Apostas (Admin)</h2>
+            <h2 class="text-xl font-bold border-b border-yellow-600/40 pb-2 mb-4"><i class="fas fa-users-cog"></i> Gerenciar apostas (Admin)</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Adicionar novo apostador e aposta -->
                 <div>
-                    <label class="text-sm font-semibold">Adicionar Aposta</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="text" id="adminPlayerName" placeholder="Nome do apostador" class="flex-1 bg-gray-800 border border-gray-600 rounded-xl px-3 py-2 text-sm">
-                        <input type="number" id="adminBetHome" placeholder="Brasil" class="w-20 text-center bg-gray-800 border border-gray-600 rounded-xl py-2 text-sm">
-                        <input type="number" id="adminBetAway" placeholder="Haiti" class="w-20 text-center bg-gray-800 border border-gray-600 rounded-xl py-2 text-sm">
-                        <button id="addBetAdminBtn" class="btn-gold px-3 py-2 rounded-xl text-sm font-bold"><i class="fas fa-plus"></i> Add</button>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-1">Limite de 2 apostas por pessoa, placares duplicados não são permitidos.</p>
-                </div>
-                <!-- Botões de gestão global -->
-                <div>
-                    <label class="text-sm font-semibold">Ferramentas</label>
-                    <div class="flex gap-2 mt-1 flex-wrap">
-                        <button id="exportJsonAdminBtn" class="bg-blue-700/80 hover:bg-blue-600 px-3 py-2 rounded-xl text-sm"><i class="fas fa-download"></i> Exportar JSON</button>
-                        <label class="bg-green-700/80 hover:bg-green-600 px-3 py-2 rounded-xl text-sm cursor-pointer">
-                            <i class="fas fa-upload"></i> Importar JSON
-                            <input type="file" id="importJsonAdminInput" accept=".json" class="hidden">
-                        </label>
-                        <button id="resetDefaultAdminBtn" class="bg-gray-700/60 hover:bg-gray-700 px-3 py-2 rounded-xl text-sm"><i class="fas fa-history"></i> Restaurar Demo</button>
+                    <label class="text-sm font-semibold">Adicionar aposta</label>
+                    <div class="flex flex-wrap gap-2 mt-1">
+                        <input type="text" id="adminNome" placeholder="Nome" class="flex-1 bg-gray-800 rounded-xl px-3 py-2 text-sm">
+                        <input type="number" id="adminHome" placeholder="BR" class="w-16 text-center bg-gray-800 rounded-xl py-2 text-sm">
+                        <input type="number" id="adminAway" placeholder="HA" class="w-16 text-center bg-gray-800 rounded-xl py-2 text-sm">
+                        <button id="btnAddAposta" class="btn-gold px-3 py-2 rounded-xl text-sm">Adicionar</button>
                     </div>
                 </div>
-            </div>
-            <hr class="border-white/10 my-4">
-            <div>
-                <label class="text-sm font-semibold">Lista de Apostadores (clique para editar/apagar)</label>
-                <select id="adminParticipantSelect" class="w-full bg-gray-800 border border-gray-600 rounded-xl px-3 py-2 mt-1 text-sm"></select>
-                <div class="flex gap-2 mt-2">
-                    <button id="deleteAdminBetBtn" class="bg-red-800/60 hover:bg-red-700 px-3 py-1.5 rounded-xl text-sm"><i class="fas fa-trash-alt"></i> Remover Apostador</button>
-                    <button id="editResultDirectBtn" class="bg-amber-700/60 hover:bg-amber-600 px-3 py-1.5 rounded-xl text-sm"><i class="fas fa-edit"></i> Definir Resultado (JSON)</button>
+                <div>
+                    <label class="text-sm font-semibold">Remover apostador</label>
+                    <select id="adminSelectApostador" class="w-full bg-gray-800 rounded-xl px-3 py-2 mt-1 text-sm"></select>
+                    <button id="btnRemoverApostador" class="bg-red-800/60 hover:bg-red-700 w-full mt-2 py-1.5 rounded-xl text-sm">Remover selecionado</button>
                 </div>
             </div>
-            <p class="text-xs text-gray-400 mt-4 text-center">⚠️ Qualquer alteração feita aqui só estará visível para todos depois que você <strong>exportar o JSON</strong> e substituir o arquivo no GitHub.</p>
+            <div class="flex gap-3 mt-4">
+                <button id="exportarJson" class="bg-blue-700/80 hover:bg-blue-600 px-4 py-2 rounded-xl text-sm"><i class="fas fa-download"></i> Exportar JSON</button>
+                <label class="bg-green-700/80 hover:bg-green-600 px-4 py-2 rounded-xl text-sm cursor-pointer">
+                    <i class="fas fa-upload"></i> Importar JSON
+                    <input type="file" id="importJsonInput" accept=".json" class="hidden">
+                </label>
+                <button id="resetDemo" class="bg-gray-700/60 hover:bg-gray-700 px-4 py-2 rounded-xl text-sm"><i class="fas fa-history"></i> Restaurar demo</button>
+            </div>
+            <p class="text-xs text-gray-400 mt-3">⚠️ Altere os dados aqui, depois clique em "Exportar JSON" e substitua o arquivo no GitHub.</p>
         </div>
     </div>
 
     <script>
         // ---------- CONFIGURAÇÕES ----------
+        let participants = [];      // { id, name, bets: [{home, away}] }
         let officialResult = { home: null, away: null };
-        let participants = [];      // Formato interno: { id, name, bets: [{home, away}] }
-        let selectedParticipantId = null;
+        let selectedId = null;
         let isAdmin = false;
-        const ADMIN_PHONE = "5512988461978";
+        const ADMIN_PHONE = "5512988461978";   // 12988461978
         const JSON_URL = "https://raw.githubusercontent.com/vendemais-sjc/BOL-ODABILA/refs/heads/main/index.json";
-        const ADMIN_PASSWORD = "admin123";
 
-        // ---------- CARREGAR DADOS DO JSON DO GITHUB ----------
-        async function loadFromJsonFile() {
-            const statusDiv = document.getElementById("statusMessage");
-            statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Carregando dados do bolão...';
+        // ---------- FUNÇÕES AUXILIARES ----------
+        async function carregarJSON() {
+            const statusDiv = document.getElementById("statusMsg");
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Carregando apostas...';
             try {
-                const response = await fetch(JSON_URL);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                console.log("JSON carregado:", data);
-                
-                // Converter formato antigo (apostas array) para participants interno
-                const apostasMap = new Map();
+                const resp = await fetch(JSON_URL);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                // Estrutura esperada: { apostas: [{nome, home, away, confirmed}], resultado: {home, away} }
+                const map = new Map();
                 if (data.apostas && Array.isArray(data.apostas)) {
-                    data.apostas.forEach(aposta => {
-                        const nome = aposta.nome || "Anônimo";
-                        if (!apostasMap.has(nome)) apostasMap.set(nome, []);
-                        // Só adiciona se confirmed for true
-                        if (aposta.confirmed === true) {
-                            apostasMap.get(nome).push({ home: aposta.home, away: aposta.away });
+                    data.apostas.forEach(a => {
+                        if (a.confirmed === true) {
+                            if (!map.has(a.nome)) map.set(a.nome, []);
+                            map.get(a.nome).push({ home: a.home, away: a.away });
                         }
                     });
                 }
                 participants = [];
-                let idx = 1;
-                for (let [nome, betsList] of apostasMap.entries()) {
-                    // limita a 2 apostas
-                    const limitedBets = betsList.slice(0,2);
-                    participants.push({
-                        id: `p${idx++}`,
-                        name: nome,
-                        bets: limitedBets
-                    });
+                let id = 1;
+                for (let [nome, bets] of map.entries()) {
+                    participants.push({ id: `p${id++}`, name: nome, bets: bets.slice(0,2) });
                 }
-                
                 if (data.resultado) {
-                    officialResult = {
-                        home: (data.resultado.home !== undefined && data.resultado.home !== null) ? data.resultado.home : null,
-                        away: (data.resultado.away !== undefined && data.resultado.away !== null) ? data.resultado.away : null
-                    };
+                    officialResult = { home: data.resultado.home, away: data.resultado.away };
                 } else {
                     officialResult = { home: null, away: null };
                 }
-                
                 if (participants.length === 0) {
-                    statusDiv.innerHTML = '<span class="text-yellow-300"><i class="fas fa-info-circle"></i> Nenhuma aposta confirmada no JSON.</span>';
+                    statusDiv.innerHTML = '<span class="text-yellow-300">⚠️ Nenhuma aposta confirmada no JSON.</span>';
                 } else {
-                    statusDiv.innerHTML = '<span class="text-green-300"><i class="fas fa-check-circle"></i> Dados carregados com sucesso!</span>';
-                    setTimeout(() => { statusDiv.innerHTML = ''; }, 3000);
+                    statusDiv.innerHTML = '<span class="text-green-300">✅ Dados carregados com sucesso!</span>';
+                    setTimeout(() => statusDiv.innerHTML = '', 3000);
                 }
-                selectedParticipantId = participants[0]?.id || null;
-                renderAll();
-                if (isAdmin) renderAdminSelect();
-            } catch(e) {
-                console.error("Erro ao carregar JSON:", e);
-                statusDiv.innerHTML = `<span class="text-red-300"><i class="fas fa-exclamation-triangle"></i> Erro ao carregar dados: ${e.message}. Verifique se o arquivo index.json está acessível.</span>`;
-                // Dados de exemplo apenas para visualização
+                selectedId = participants[0]?.id || null;
+                renderizarTudo();
+                if (isAdmin) preencherSelectAdmin();
+            } catch (err) {
+                console.error(err);
+                statusDiv.innerHTML = `<span class="text-red-300">❌ Erro ao carregar JSON: ${err.message}. Verifique o arquivo.</span>`;
                 participants = [];
                 officialResult = { home: null, away: null };
-                selectedParticipantId = null;
-                renderAll();
+                renderizarTudo();
             }
         }
 
-        // ---------- FUNÇÕES DE RENDERIZAÇÃO ----------
-        function calculatePoints(p) {
+        function calcularPontos(p) {
             if (officialResult.home === null || officialResult.away === null) return 0;
-            let pts = 0;
+            let pontos = 0;
             for (let bet of p.bets) {
-                if (bet.home === officialResult.home && bet.away === officialResult.away) pts += 5;
+                if (bet.home === officialResult.home && bet.away === officialResult.away) pontos += 5;
             }
-            return pts;
+            return pontos;
         }
 
         function getRanking() {
-            return participants.map(p => ({ id: p.id, name: p.name, points: calculatePoints(p), betsCount: p.bets.length }))
-                .sort((a,b) => b.points - a.points);
+            return participants.map(p => ({ ...p, pontos: calcularPontos(p) })).sort((a,b) => b.pontos - a.pontos);
         }
 
-        function renderAll() {
-            document.getElementById("participantCount").innerText = participants.length;
-            const select = document.getElementById("participantSelect");
+        function renderizarTudo() {
+            // Select público
+            const select = document.getElementById("selectApostador");
             if (select) {
                 select.innerHTML = "";
                 participants.forEach(p => {
                     const opt = document.createElement("option");
                     opt.value = p.id;
-                    opt.textContent = `${p.name} (${p.bets.length}/2 apostas)`;
-                    if (selectedParticipantId === p.id) opt.selected = true;
+                    opt.textContent = `${p.name} (${p.bets.length}/2)`;
+                    if (selectedId === p.id) opt.selected = true;
                     select.appendChild(opt);
                 });
-                if (participants.length === 0) select.innerHTML = '<option disabled>Nenhum apostador</option>';
+                if (participants.length === 0) select.innerHTML = '<option>Nenhum apostador</option>';
             }
-            const nameSpan = document.getElementById("selectedUserName");
-            const container = document.getElementById("betsContainer");
-            if (!selectedParticipantId || participants.length === 0) {
-                if (nameSpan) nameSpan.innerText = "—";
+            document.getElementById("qtdApostadores").innerText = participants.length;
+
+            // Exibir apostas do selecionado
+            const container = document.getElementById("apostasContainer");
+            const nomeSpan = document.getElementById("selectedUserName");
+            if (!selectedId || participants.length === 0) {
+                if (nomeSpan) nomeSpan.innerText = "—";
                 if (container) container.innerHTML = '<div class="text-center text-gray-400 py-4">Selecione um apostador</div>';
             } else {
-                const part = participants.find(p => p.id === selectedParticipantId);
+                const part = participants.find(p => p.id === selectedId);
                 if (part) {
-                    if (nameSpan) nameSpan.innerText = part.name;
+                    if (nomeSpan) nomeSpan.innerText = part.name;
                     if (container) {
-                        if (!part.bets.length) {
-                            container.innerHTML = '<div class="text-center text-gray-400 py-4 border border-dashed">Nenhuma aposta confirmada</div>';
+                        if (part.bets.length === 0) {
+                            container.innerHTML = '<div class="text-center text-gray-400 py-4 border border-dashed">Nenhuma aposta</div>';
                         } else {
                             container.innerHTML = "";
                             part.bets.forEach(bet => {
                                 const div = document.createElement("div");
                                 div.className = "bet-card rounded-xl p-3 flex justify-between items-center";
-                                div.innerHTML = `
-                                    <div class="flex items-center gap-2 bg-black/30 px-3 py-1 rounded-full">
-                                        <span class="font-bold">🇧🇷 ${bet.home}</span>
-                                        <span class="text-yellow-400">x</span>
-                                        <span class="font-bold">${bet.away} 🇭🇹</span>
-                                    </div>
-                                    <span class="text-xs text-gray-400"><i class="fas fa-check-circle text-green-500"></i> Confirmada</span>
-                                `;
+                                div.innerHTML = `<div class="flex gap-2 bg-black/30 px-3 py-1 rounded-full"><span>🇧🇷 ${bet.home}</span><span class="text-yellow-400">x</span><span>${bet.away} 🇭🇹</span></div><span class="text-xs text-green-400"><i class="fas fa-check-circle"></i> Confirmada</span>`;
                                 container.appendChild(div);
                             });
                         }
                     }
-                } else { if(nameSpan) nameSpan.innerText = "—"; }
+                }
             }
+
+            // Ranking
             const ranking = getRanking();
             const rankDiv = document.getElementById("rankingTable");
             if (rankDiv) {
-                if (!ranking.length) { rankDiv.innerHTML = '<div class="text-center text-gray-400">Sem participantes</div>'; return; }
+                if (ranking.length === 0) { rankDiv.innerHTML = '<div class="text-center text-gray-400">Sem apostas</div>'; return; }
                 let html = `<table class="w-full text-sm"><thead><tr class="border-b"><th>#</th><th>Apostador</th><th>Apostas</th><th>Pontos</th></tr></thead><tbody>`;
                 ranking.forEach((r, idx) => {
-                    const highlight = (r.id === selectedParticipantId) ? 'bg-yellow-500/10' : '';
+                    const highlight = (r.id === selectedId) ? 'bg-yellow-500/10' : '';
                     html += `<tr class="${highlight} border-b border-white/5">
                         <td class="py-2 font-bold ${idx===0?'text-yellow-400':''}">${idx+1}${idx===0?' 🏆':''}</td>
                         <td><i class="fas fa-user-circle"></i> ${r.name}</td>
-                        <td class="text-center">${r.betsCount}/2</td>
-                        <td class="text-right font-bold text-yellow-300">${r.points}</td>
+                        <td class="text-center">${r.bets.length}/2</td>
+                        <td class="text-right font-bold text-yellow-300">${r.pontos}</td>
                     </tr>`;
                 });
                 html += `</tbody></table>`;
                 rankDiv.innerHTML = html;
             }
-            const resultHomeSpan = document.getElementById("resultHomeDisplay");
-            const resultAwaySpan = document.getElementById("resultAwayDisplay");
-            if (resultHomeSpan && resultAwaySpan) {
-                if (officialResult.home !== null && officialResult.away !== null) {
-                    resultHomeSpan.innerText = officialResult.home;
-                    resultAwaySpan.innerText = officialResult.away;
-                } else {
-                    resultHomeSpan.innerText = "?";
-                    resultAwaySpan.innerText = "?";
-                }
-            }
+
+            // Resultado oficial
+            document.getElementById("resHome").innerText = (officialResult.home !== null ? officialResult.home : "?");
+            document.getElementById("resAway").innerText = (officialResult.away !== null ? officialResult.away : "?");
         }
 
-        function renderAdminSelect() {
-            const adminSelect = document.getElementById("adminParticipantSelect");
-            if (adminSelect) {
-                adminSelect.innerHTML = '<option value="">-- Selecione um apostador --</option>';
+        function preencherSelectAdmin() {
+            const sel = document.getElementById("adminSelectApostador");
+            if (sel) {
+                sel.innerHTML = '<option value="">-- Selecione --</option>';
                 participants.forEach(p => {
                     const opt = document.createElement("option");
                     opt.value = p.id;
                     opt.textContent = `${p.name} (${p.bets.length}/2)`;
-                    adminSelect.appendChild(opt);
+                    sel.appendChild(opt);
                 });
             }
         }
 
-        // ---------- ADMIN: ADICIONAR APOSTA MANUALMENTE ----------
-        function addBetByAdmin() {
-            const nome = document.getElementById("adminPlayerName").value.trim();
-            const home = parseInt(document.getElementById("adminBetHome").value);
-            const away = parseInt(document.getElementById("adminBetAway").value);
+        // ---------- ADMIN: ADICIONAR APOSTA ----------
+        function adicionarApostaAdmin() {
+            const nome = document.getElementById("adminNome").value.trim();
+            const home = parseInt(document.getElementById("adminHome").value);
+            const away = parseInt(document.getElementById("adminAway").value);
             if (!nome) { alert("Digite o nome do apostador."); return; }
             if (isNaN(home) || isNaN(away)) { alert("Digite um placar válido."); return; }
-            
-            let participant = participants.find(p => p.name === nome);
-            if (!participant) {
-                // criar novo
-                const newId = `p${Date.now()}`;
-                participant = { id: newId, name: nome, bets: [] };
-                participants.push(participant);
+            let part = participants.find(p => p.name === nome);
+            if (!part) {
+                part = { id: `p${Date.now()}`, name: nome, bets: [] };
+                participants.push(part);
             }
-            if (participant.bets.length >= 2) {
-                alert(`Limite de 2 apostas para ${nome}.`);
-                return;
-            }
-            if (participant.bets.some(b => b.home === home && b.away === away)) {
-                alert("Este placar já foi apostado por este jogador.");
-                return;
-            }
-            participant.bets.push({ home, away });
-            // Se não havia nenhum selecionado, define o primeiro
-            if (!selectedParticipantId) selectedParticipantId = participant.id;
-            // limpa campos
-            document.getElementById("adminPlayerName").value = "";
-            document.getElementById("adminBetHome").value = "";
-            document.getElementById("adminBetAway").value = "";
-            renderAll();
-            renderAdminSelect();
-            alert(`✅ Aposta adicionada: ${nome} - Brasil ${home} x ${away} Haiti.\nLembre-se de exportar o JSON e atualizar no GitHub.`);
+            if (part.bets.length >= 2) { alert(`Limite de 2 apostas para ${nome}.`); return; }
+            if (part.bets.some(b => b.home === home && b.away === away)) { alert("Este placar já foi apostado."); return; }
+            part.bets.push({ home, away });
+            if (!selectedId) selectedId = part.id;
+            // limpar campos
+            document.getElementById("adminNome").value = "";
+            document.getElementById("adminHome").value = "";
+            document.getElementById("adminAway").value = "";
+            renderizarTudo();
+            preencherSelectAdmin();
+            alert(`✅ Aposta de ${nome} (${home}x${away}) adicionada. Exporte o JSON para salvar.`);
         }
 
-        function deleteSelectedParticipant() {
-            const adminSelect = document.getElementById("adminParticipantSelect");
-            const id = adminSelect.value;
+        function removerApostadorAdmin() {
+            const sel = document.getElementById("adminSelectApostador");
+            const id = sel.value;
             if (!id) { alert("Selecione um apostador."); return; }
             if (confirm("Remover este apostador e todas as suas apostas?")) {
                 participants = participants.filter(p => p.id !== id);
-                if (selectedParticipantId === id) selectedParticipantId = participants[0]?.id || null;
-                renderAll();
-                renderAdminSelect();
-                alert("Apostador removido. Exporte o JSON para salvar a alteração.");
+                if (selectedId === id) selectedId = participants[0]?.id || null;
+                renderizarTudo();
+                preencherSelectAdmin();
+                alert("Removido. Exporte o JSON para persistir.");
             }
         }
 
-        // ---------- EXPORTAR E IMPORTAR JSON ----------
-        function exportToJson() {
-            // Converter participants para o formato do JSON original: array "apostas"
+        // ---------- RESULTADO OFICIAL ----------
+        function toggleResultAdmin() {
+            const area = document.getElementById("adminResultArea");
+            area.classList.toggle("hidden");
+        }
+        function salvarResultado() {
+            const home = parseInt(document.getElementById("inputHome").value);
+            const away = parseInt(document.getElementById("inputAway").value);
+            if (isNaN(home) || isNaN(away)) { alert("Preencha os dois campos."); return; }
+            officialResult = { home, away };
+            renderizarTudo();
+            document.getElementById("adminResultArea").classList.add("hidden");
+            alert(`Resultado definido: Brasil ${home} x ${away} Haiti. Exporte o JSON para atualizar no GitHub.`);
+        }
+
+        // ---------- EXPORTAR / IMPORTAR JSON ----------
+        function exportarJSON() {
             const apostas = [];
             participants.forEach(p => {
                 p.bets.forEach(bet => {
-                    apostas.push({
-                        nome: p.name,
-                        home: bet.home,
-                        away: bet.away,
-                        confirmed: true
-                    });
+                    apostas.push({ nome: p.name, home: bet.home, away: bet.away, confirmed: true });
                 });
             });
-            const data = {
-                apostas: apostas,
-                resultado: officialResult
-            };
+            const data = { apostas, resultado: officialResult };
             const jsonStr = JSON.stringify(data, null, 2);
             const blob = new Blob([jsonStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'index.json';
-            document.body.appendChild(a);
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "index.json";
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            alert("Arquivo JSON exportado! Agora faça o upload/substituição no repositório GitHub para todos verem.");
+            URL.revokeObjectURL(a.href);
+            alert("JSON exportado! Agora substitua o arquivo no GitHub.");
         }
 
-        function importFromJson(file) {
+        function importarJSON(file) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    const apostasMap = new Map();
-                    if (data.apostas && Array.isArray(data.apostas)) {
-                        data.apostas.forEach(aposta => {
-                            const nome = aposta.nome || "Anônimo";
-                            if (aposta.confirmed === true) {
-                                if (!apostasMap.has(nome)) apostasMap.set(nome, []);
-                                apostasMap.get(nome).push({ home: aposta.home, away: aposta.away });
+                    const map = new Map();
+                    if (data.apostas) {
+                        data.apostas.forEach(a => {
+                            if (a.confirmed === true) {
+                                if (!map.has(a.nome)) map.set(a.nome, []);
+                                map.get(a.nome).push({ home: a.home, away: a.away });
                             }
                         });
                     }
                     participants = [];
                     let idx = 1;
-                    for (let [nome, betsList] of apostasMap.entries()) {
-                        participants.push({ id: `p${idx++}`, name: nome, bets: betsList.slice(0,2) });
+                    for (let [nome, bets] of map.entries()) {
+                        participants.push({ id: `p${idx++}`, name: nome, bets: bets.slice(0,2) });
                     }
-                    if (data.resultado) {
-                        officialResult = {
-                            home: (data.resultado.home !== undefined && data.resultado.home !== null) ? data.resultado.home : null,
-                            away: (data.resultado.away !== undefined && data.resultado.away !== null) ? data.resultado.away : null
-                        };
-                    }
-                    selectedParticipantId = participants[0]?.id || null;
-                    renderAll();
-                    renderAdminSelect();
-                    alert("JSON importado com sucesso! Lembre-se de exportar se quiser manter as alterações.");
-                } catch(err) {
+                    if (data.resultado) officialResult = { home: data.resultado.home, away: data.resultado.away };
+                    else officialResult = { home: null, away: null };
+                    selectedId = participants[0]?.id || null;
+                    renderizarTudo();
+                    preencherSelectAdmin();
+                    alert("JSON importado com sucesso!");
+                } catch (err) {
                     alert("Erro ao ler JSON: " + err.message);
                 }
             };
             reader.readAsText(file);
         }
 
-        function resetToDefault() {
-            if (confirm("Restaurar dados de demonstração?")) {
-                participants = [
-                    { id: "demo1", name: "Carlão do PIX", bets: [{ home: 2, away: 0 }, { home: 3, away: 1 }] },
-                    { id: "demo2", name: "Marta Boleira", bets: [{ home: 1, away: 0 }] },
-                    { id: "demo3", name: "Ronaldo Fenômeno", bets: [{ home: 4, away: 1 }] }
-                ];
-                officialResult = { home: null, away: null };
-                selectedParticipantId = participants[0].id;
-                renderAll();
-                renderAdminSelect();
-                alert("Dados restaurados. Exporte o JSON se quiser salvar.");
-            }
+        function restaurarDemo() {
+            participants = [
+                { id: "p1", name: "Carlão do PIX", bets: [{ home: 2, away: 0 }, { home: 3, away: 1 }] },
+                { id: "p2", name: "Marta Boleira", bets: [{ home: 1, away: 0 }] },
+                { id: "p3", name: "Ronaldo Fenômeno", bets: [{ home: 4, away: 1 }] }
+            ];
+            officialResult = { home: null, away: null };
+            selectedId = participants[0].id;
+            renderizarTudo();
+            preencherSelectAdmin();
+            alert("Dados de demonstração restaurados. Exporte se quiser salvar.");
         }
 
-        // ---------- RESULTADO OFICIAL (ADMIN) ----------
-        function toggleAdminResultArea() {
-            const area = document.getElementById("resultAdminArea");
-            area.classList.toggle("hidden");
-        }
-        function confirmResult() {
-            const home = parseInt(document.getElementById("officialHomeGoals").value);
-            const away = parseInt(document.getElementById("officialAwayGoals").value);
-            if (isNaN(home) || isNaN(away)) { alert("Preencha os dois campos."); return; }
-            officialResult = { home, away };
-            renderAll();
-            alert(`Resultado definido localmente: Brasil ${home} x ${away} Haiti.\nExporte o JSON para atualizar no GitHub.`);
-            document.getElementById("resultAdminArea").classList.add("hidden");
-        }
-
-        // ---------- ENVIO DE APOSTA (JOGADOR) ----------
-        function sendWhatsAppBet() {
-            let nome = prompt("Digite seu NOME completo:", "");
+        // ---------- WHATSAPP (CORRIGIDO) ----------
+        function enviarWhatsApp() {
+            let nome = prompt("Digite seu NOME completo (como vai aparecer no bolão):", "");
             if (!nome || !nome.trim()) nome = "Apostador";
             nome = nome.trim();
             let home = prompt("🇧🇷 Gols do BRASIL:", "2");
             let away = prompt("🇭🇹 Gols do HAITI:", "0");
             home = parseInt(home);
             away = parseInt(away);
-            if (isNaN(home) || isNaN(away)) { alert("Placar inválido."); return; }
-            const message = `*NOVA APOSTA - BOLÃO DA BILA*%0A%0A👤 *Apostador:* ${nome}%0A⚽ *Placar:* Brasil ${home} x ${away} Haiti%0A💰 *Valor:* R$ 25,00%0A📌 *Status:* Aguardando pagamento e registro%0A%0A🔹 Enviar comprovante do PIX (chave 12988461978).`;
-            window.open(`https://wa.me/${ADMIN_PHONE}?text=${message}`, "_blank");
-            alert("📱 Mensagem gerada! Envie também o comprovante. O administrador irá registrar sua aposta manualmente.");
+            if (isNaN(home) || isNaN(away)) {
+                alert("Placar inválido. Use números.");
+                return;
+            }
+            const texto = `*NOVA APOSTA - BOLÃO DA BILA*%0A%0A👤 *Apostador:* ${nome}%0A⚽ *Placar:* Brasil ${home} x ${away} Haiti%0A💰 *Valor:* R$ 25,00%0A📌 *Status:* Aguardando pagamento%0A%0A🔹 Enviar comprovante do PIX (chave 12988461978) para confirmar.`;
+            const url = `https://wa.me/${ADMIN_PHONE}?text=${texto}`;
+            window.open(url, "_blank");
+            // Pequeno feedback
+            alert("📱 Redirecionando para o WhatsApp. Envie a mensagem (já preenchida) e o comprovante do PIX.");
         }
 
-        function copyPixKey() { navigator.clipboard.writeText("12988461978"); alert("Chave PIX copiada!"); }
-        function shareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent("⚽ BOLÃO DA BILA - Brasil x Haiti ⚽\nAposte no placar exato! Acesse: " + window.location.href)}`, "_blank"); }
+        function copiarPix() {
+            navigator.clipboard.writeText("12988461978");
+            alert("Chave PIX copiada: 12988461978");
+        }
+        function compartilharBolao() {
+            const url = window.location.href;
+            window.open(`https://wa.me/?text=${encodeURIComponent("⚽ BOLÃO DA BILA - Brasil x Haiti ⚽\nAposte no placar exato! Acesse: " + url)}`, "_blank");
+        }
 
         // ---------- AUTENTICAÇÃO ADMIN ----------
-        function showAdminModal() { document.getElementById("adminModal").classList.remove("hidden"); }
-        function hideAdminModal() { document.getElementById("adminModal").classList.add("hidden"); }
-        function loginAdmin() {
-            const pwd = document.getElementById("adminPassword").value;
-            if (pwd === ADMIN_PASSWORD) {
+        function mostrarModalAdmin() {
+            const senha = prompt("Digite a senha de administrador:");
+            if (senha === "admin123") {
                 isAdmin = true;
-                hideAdminModal();
                 document.querySelectorAll(".admin-only").forEach(el => el.classList.remove("admin-only"));
-                document.getElementById("toggleAdminBtn").innerHTML = '<i class="fas fa-lock-open"></i> Modo Admin (Ativo)';
-                document.getElementById("toggleAdminBtn").classList.add("bg-yellow-700");
-                renderAdminSelect();
-                alert("Modo administrador ativado. Você pode gerenciar apostas e exportar/importar JSON.");
-            } else {
+                preencherSelectAdmin();
+                alert("Modo administrador ativado. Agora você pode gerenciar apostas e exportar JSON.");
+            } else if (senha !== null) {
                 alert("Senha incorreta.");
             }
-            document.getElementById("adminPassword").value = "";
         }
 
-        // EVENTOS
-        document.getElementById("toggleAdminBtn")?.addEventListener("click", () => {
-            if (isAdmin) alert("Você já está no modo admin. Recarregue a página se quiser sair.");
-            else showAdminModal();
+        // ---------- EVENTOS ----------
+        document.getElementById("btnWhatsapp").addEventListener("click", enviarWhatsApp);
+        document.getElementById("copyPix").addEventListener("click", copiarPix);
+        document.getElementById("shareBolao").addEventListener("click", compartilharBolao);
+        document.getElementById("btnDefinirResultado").addEventListener("click", toggleResultAdmin);
+        document.getElementById("confirmResult").addEventListener("click", salvarResultado);
+        document.getElementById("btnAddAposta").addEventListener("click", adicionarApostaAdmin);
+        document.getElementById("btnRemoverApostador").addEventListener("click", removerApostadorAdmin);
+        document.getElementById("exportarJson").addEventListener("click", exportarJSON);
+        document.getElementById("importJsonInput").addEventListener("change", (e) => {
+            if (e.target.files.length) importarJSON(e.target.files[0]);
+            e.target.value = "";
         });
-        document.getElementById("adminLoginBtn")?.addEventListener("click", loginAdmin);
-        document.getElementById("adminModalClose")?.addEventListener("click", hideAdminModal);
-        document.getElementById("adminModal")?.addEventListener("click", (e) => { if(e.target === document.getElementById("adminModal")) hideAdminModal(); });
-        document.getElementById("setOfficialResultBtn")?.addEventListener("click", toggleAdminResultArea);
-        document.getElementById("confirmResultBtn")?.addEventListener("click", confirmResult);
-        document.getElementById("whatsappBetBtn")?.addEventListener("click", sendWhatsAppBet);
-        document.getElementById("copyPixBtn")?.addEventListener("click", copyPixKey);
-        document.getElementById("shareWhatsAppBtn")?.addEventListener("click", shareWhatsApp);
-        document.getElementById("participantSelect")?.addEventListener("change", (e) => { selectedParticipantId = e.target.value; renderAll(); });
-        document.getElementById("addBetAdminBtn")?.addEventListener("click", addBetByAdmin);
-        document.getElementById("deleteAdminBetBtn")?.addEventListener("click", deleteSelectedParticipant);
-        document.getElementById("exportJsonAdminBtn")?.addEventListener("click", exportToJson);
-        document.getElementById("importJsonAdminInput")?.addEventListener("change", (e) => { if(e.target.files.length) importFromJson(e.target.files[0]); e.target.value = ''; });
-        document.getElementById("resetDefaultAdminBtn")?.addEventListener("click", resetToDefault);
-        document.getElementById("editResultDirectBtn")?.addEventListener("click", () => { toggleAdminResultArea(); });
+        document.getElementById("resetDemo").addEventListener("click", restaurarDemo);
+        document.getElementById("selectApostador").addEventListener("change", (e) => {
+            selectedId = e.target.value;
+            renderizarTudo();
+        });
+        // Botão para ativar admin (no canto superior direito, vou adicionar um fixo)
+        const adminBtn = document.createElement("button");
+        adminBtn.innerHTML = '<i class="fas fa-lock"></i> Admin';
+        adminBtn.className = "fixed bottom-4 right-4 bg-gray-800/80 hover:bg-gray-700 px-3 py-2 rounded-full text-sm z-50";
+        adminBtn.style.position = "fixed";
+        adminBtn.style.bottom = "16px";
+        adminBtn.style.right = "16px";
+        adminBtn.onclick = mostrarModalAdmin;
+        document.body.appendChild(adminBtn);
 
-        // INICIALIZAÇÃO
-        loadFromJsonFile();
+        // Inicialização
+        carregarJSON();
     </script>
 </body>
 </html>
